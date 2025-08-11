@@ -5,6 +5,8 @@ import { Sheet, SheetContent, SheetTrigger } from "./components/ui/sheet"
 import { Link, Routes, Route } from "react-router-dom" // Import Link, Routes, Route
 import FeatureDetailPage from "./pages/FeatureDetailPage" // Import FeatureDetailPage
 import "./App.css" // Import the minimal CSS file
+import JournalingPage from "./pages/JournalingPage" // Import JournalingPage
+import HabitTrackerPage from "./pages/HabitTrackerPage" // Import HabitTrackerPage
 
 // Main component for the landing page content
 function HomePage() {
@@ -56,9 +58,7 @@ function HomePage() {
   return (
     <div
       className="min-h-screen relative bg-cover bg-repeat bg-center bg-fixed scroll-smooth" // Added scroll-smooth
-      style={{ backgroundImage: 'url("bg.jpg")' ,
-       
-      }}
+      style={{ backgroundImage: 'url("bg.jpg")' }}
     >
       {/* Background Overlay */}
       <div className="fixed inset-0 pointer-events-none z-0 bg-[#F0EEEA]/30" /> {/* cream/30 */}
@@ -187,13 +187,29 @@ function HomePage() {
                     </div>
                     <h3 className="text-xl font-semibold text-[#486856]">{feature.title}</h3> {/* sage-dark */}
                     <p className="text-[#486856] leading-relaxed">{feature.description}</p> {/* sage-dark */}
-                    <Link to={`/features/${feature.slug}`}>
-                      <Button variant="ghost" className="text-[#486856] hover:bg-white/20 mt-4">
+                    {feature.slug === "journaling" ? (
+                      <Link to={`/journaling`}>
+                        <Button variant="ghost" className="text-[#486856] hover:bg-white/20 mt-4">
+                          {" "}
+                          {/* sage-dark */}
+                          Explore →
+                        </Button>
+                      </Link>
+                    ) : feature.slug === "habittracker" ? (
+                      <Link to={`/habits`}>
+                        <Button variant="ghost" className="text-[#486856] hover:bg-white/20 mt-4">
+                          {" "}
+                          {/* sage-dark */}
+                          Explore →
+                        </Button>
+                      </Link>
+                    ) : (
+                      <Button variant="ghost" className="text-[#486856] hover:bg-white/20 mt-4" disabled>
                         {" "}
                         {/* sage-dark */}
-                        Explore →
+                        Coming Soon →
                       </Button>
-                    </Link>
+                    )}
                   </CardContent>
                 </Card>
               ))}
@@ -265,6 +281,8 @@ export default function App() {
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/features/:featureName" element={<FeatureDetailPage />} />
+      <Route path="/journaling" element={<JournalingPage />} /> {/* Add journaling route */}
+      <Route path="/habits" element={<HabitTrackerPage />} /> {/* Add habit tracker route */}
     </Routes>
   )
 }
