@@ -9,11 +9,9 @@ const CreateHabitModal = ({ isOpen, onClose, onSave }) => {
   const [habitData, setHabitData] = useState({
     name: "",
     icon: "🎯",
-    color: "#4A90E2",
+    color: "#6B7280",
     goalType: "cultivate", // cultivate or quit
     frequency: "daily",
-    goalCount: 1,
-    goalUnit: "Count",
     startDate: new Date().toISOString().split("T")[0],
     endDate: "",
   })
@@ -24,7 +22,7 @@ const CreateHabitModal = ({ isOpen, onClose, onSave }) => {
   const [showColorPicker, setShowColorPicker] = useState(false)
 
   const icons = ["🎯", "📚", "💧", "🏃", "🧘", "💪", "🥗", "😴", "📱", "🚭", "🍎", "✍️"]
-  const colors = ["#4A90E2", "#6BB6FF", "#5DADE2", "#85C1E9", "#AED6F1", "#D6EAF8"]
+  const colors = ["#6B7280", "#9CA3AF", "#D1D5DB", "#4B5563", "#374151", "#1F2937"]
 
   const handleInputChange = (field, value) => {
     setHabitData((prev) => ({ ...prev, [field]: value }))
@@ -44,11 +42,9 @@ const CreateHabitModal = ({ isOpen, onClose, onSave }) => {
     setHabitData({
       name: "",
       icon: "🎯",
-      color: "#4A90E2",
+      color: "#6B7280",
       goalType: "cultivate",
       frequency: "daily",
-      goalCount: 1,
-      goalUnit: "Count",
       startDate: new Date().toISOString().split("T")[0],
       endDate: "",
     })
@@ -115,7 +111,7 @@ const CreateHabitModal = ({ isOpen, onClose, onSave }) => {
         <Card className="w-full max-w-sm bg-[#1a1a1a] text-white border-none">
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-semibold text-[#4A90E2]">Select Date</h3>
+              <h3 className="text-xl font-semibold text-[#9CA3AF]">Select Date</h3>
               <Button
                 variant="ghost"
                 size="icon"
@@ -147,7 +143,7 @@ const CreateHabitModal = ({ isOpen, onClose, onSave }) => {
                   className={`p-2 text-sm rounded-full ${
                     day
                       ? day === new Date().getDate()
-                        ? "bg-[#4A90E2] text-white"
+                        ? "bg-[#6B7280] text-white"
                         : "text-white hover:bg-white/10"
                       : ""
                   }`}
@@ -159,7 +155,7 @@ const CreateHabitModal = ({ isOpen, onClose, onSave }) => {
 
             <Button
               onClick={() => setShowDatePicker(false)}
-              className="w-full bg-[#4A90E2] hover:bg-[#3A7BC8] text-white"
+              className="w-full bg-[#6B7280] hover:bg-[#4B5563] text-white"
             >
               Select
             </Button>
@@ -174,7 +170,7 @@ const CreateHabitModal = ({ isOpen, onClose, onSave }) => {
       <Card className="w-full max-w-md bg-[#1a1a1a] text-white border-none max-h-[90vh] overflow-y-auto">
         <CardContent className="p-6">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-[#4A90E2]">Create a Habit</h2>
+            <h2 className="text-xl font-semibold text-[#9CA3AF]">Create a Habit</h2>
             <Button variant="ghost" size="icon" onClick={onClose} className="text-white hover:bg-white/10">
               <X className="w-5 h-5" />
             </Button>
@@ -188,7 +184,7 @@ const CreateHabitModal = ({ isOpen, onClose, onSave }) => {
                 placeholder="Enter habit name"
                 value={habitData.name}
                 onChange={(e) => handleInputChange("name", e.target.value)}
-                className="w-full bg-transparent border-b border-[#4A90E2] text-white placeholder-red-400 pb-2 focus:outline-none focus:border-[#6BB6FF]"
+                className="w-full bg-transparent border-b border-[#6B7280] text-white placeholder-red-400 pb-2 focus:outline-none focus:border-[#9CA3AF]"
               />
             </div>
 
@@ -260,12 +256,12 @@ const CreateHabitModal = ({ isOpen, onClose, onSave }) => {
 
             <div>
               <label className="block text-white text-lg font-medium mb-4">My Goal is To</label>
-              <div className="flex rounded-lg overflow-hidden border border-[#4A90E2]">
+              <div className="flex rounded-lg overflow-hidden border border-[#6B7280]">
                 <button
                   onClick={() => handleInputChange("goalType", "cultivate")}
                   className={`flex-1 py-3 px-4 text-sm font-medium ${
                     habitData.goalType === "cultivate"
-                      ? "bg-[#4A90E2] text-white"
+                      ? "bg-[#6B7280] text-white"
                       : "bg-transparent text-gray-300 hover:bg-white/5"
                   }`}
                 >
@@ -275,7 +271,7 @@ const CreateHabitModal = ({ isOpen, onClose, onSave }) => {
                   onClick={() => handleInputChange("goalType", "quit")}
                   className={`flex-1 py-3 px-4 text-sm font-medium ${
                     habitData.goalType === "quit"
-                      ? "bg-[#4A90E2] text-white"
+                      ? "bg-[#6B7280] text-white"
                       : "bg-transparent text-gray-300 hover:bg-white/5"
                   }`}
                 >
@@ -291,28 +287,8 @@ const CreateHabitModal = ({ isOpen, onClose, onSave }) => {
                   <p className="text-gray-300 text-sm mb-2">Schedule of Habit</p>
                   <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
                     <span className="text-gray-300">Goal Period</span>
-                    <span className="text-[#4A90E2]">Daily</span>
+                    <span className="text-[#9CA3AF]">Daily</span>
                   </div>
-                </div>
-
-                <div>
-                  <p className="text-gray-300 text-sm mb-2">Goal</p>
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="number"
-                      value={habitData.goalCount}
-                      onChange={(e) => handleInputChange("goalCount", Number.parseInt(e.target.value) || 1)}
-                      className="w-16 bg-white/5 border border-[#4A90E2] rounded-lg px-3 py-2 text-white text-center"
-                      min="1"
-                    />
-                    <div className="flex-1 bg-white/5 border border-[#4A90E2] rounded-lg px-3 py-2">
-                      <span className="text-white">Count</span>
-                    </div>
-                    <span className="text-gray-300">/ day</span>
-                  </div>
-                  <p className="text-orange-400 text-sm mt-2">
-                    Complete {habitData.goalCount} {habitData.goalUnit} Every day
-                  </p>
                 </div>
 
                 <div className="space-y-3">
@@ -328,7 +304,7 @@ const CreateHabitModal = ({ isOpen, onClose, onSave }) => {
                       <span className="text-gray-300">Start Date</span>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <span className="text-[#4A90E2]">{formatDate(habitData.startDate)}</span>
+                      <span className="text-[#9CA3AF]">{formatDate(habitData.startDate)}</span>
                       <ChevronRight className="w-5 h-5 text-gray-400" />
                     </div>
                   </div>
@@ -345,7 +321,7 @@ const CreateHabitModal = ({ isOpen, onClose, onSave }) => {
                       <span className="text-gray-300">End Date (Optional)</span>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <span className="text-[#4A90E2]">{habitData.endDate ? formatDate(habitData.endDate) : "-"}</span>
+                      <span className="text-[#9CA3AF]">{habitData.endDate ? formatDate(habitData.endDate) : "-"}</span>
                       <ChevronRight className="w-5 h-5 text-gray-400" />
                     </div>
                   </div>
@@ -357,7 +333,7 @@ const CreateHabitModal = ({ isOpen, onClose, onSave }) => {
           <Button
             onClick={handleSave}
             disabled={!habitData.name.trim()}
-            className="w-full mt-8 bg-[#4A90E2] hover:bg-[#3A7BC8] text-white py-3 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full mt-8 bg-[#6B7280] hover:bg-[#4B5563] text-white py-3 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             ✓ Create Habit
           </Button>

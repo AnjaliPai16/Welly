@@ -47,6 +47,15 @@ const HabitTrackerPage = () => {
     }
     return weekDays
   }
+  const getCurrentDate = () => {
+    const today = new Date()
+    return today.toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    })
+  }
 
   const weekDays = getCurrentWeekDays()
 
@@ -92,6 +101,11 @@ const HabitTrackerPage = () => {
     setSelectedHabitForStats(habit)
     setShowStatsModal(true)
   }
+  const showGeneralStats = () => {
+    setSelectedHabitForStats(null)
+    setShowStatsModal(true)
+  }
+
 
   return (
     <div className="min-h-screen">
@@ -118,7 +132,13 @@ const HabitTrackerPage = () => {
       >
         <div className="absolute inset-0 bg-white/20 backdrop-blur-[0.5px]"></div>
         <div className="relative z-10">
-          <div className="px-4 mb-6 pt-6"></div>
+          
+          <div className="px-4 mb-6 pt-6">
+            <div className="text-center">
+              <p className="text-[#2C5282] text-lg font-medium">{getCurrentDate()}</p>
+            </div>
+          </div>
+
 
           <div className="px-4 mb-6">
             <div className="flex justify-center space-x-2">
@@ -214,7 +234,13 @@ const HabitTrackerPage = () => {
       <div className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-sm border-t border-[#4A90E2]/20">
         <div className="flex items-center justify-center py-4">
           <div className="flex items-center space-x-8">
-            <Button variant="ghost" size="icon" className="text-[#4A90E2] bg-[#4A90E2]/10 rounded-full w-12 h-12">
+
+            <Button
+              onClick={showGeneralStats}
+              variant="ghost"
+              size="icon"
+              className="text-[#4A90E2] bg-[#4A90E2]/10 rounded-full w-12 h-12"
+            >
               <Calendar className="w-6 h-6" />
             </Button>
             <Button
@@ -223,7 +249,13 @@ const HabitTrackerPage = () => {
             >
               <Plus className="w-8 h-8" />
             </Button>
-            <Button variant="ghost" size="icon" className="text-[#4A90E2] bg-[#4A90E2]/10 rounded-full w-12 h-12">
+
+            <Button
+              onClick={showGeneralStats}
+              variant="ghost"
+              size="icon"
+              className="text-[#4A90E2] bg-[#4A90E2]/10 rounded-full w-12 h-12"
+            >
               <BarChart3 className="w-6 h-6" />
             </Button>
           </div>

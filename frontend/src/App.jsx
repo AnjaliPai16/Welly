@@ -7,6 +7,7 @@ import FeatureDetailPage from "./pages/FeatureDetailPage" // Import FeatureDetai
 import "./App.css" // Import the minimal CSS file
 import JournalingPage from "./pages/JournalingPage" // Import JournalingPage
 import HabitTrackerPage from "./pages/HabitTrackerPage" // Import HabitTrackerPage
+import GratitudePage from "./pages/GratitudePage" // Import GratitudePage
 
 // Main component for the landing page content
 function HomePage() {
@@ -203,6 +204,14 @@ function HomePage() {
                           Explore →
                         </Button>
                       </Link>
+                       ) : feature.slug === "gratitudecheck" ? (
+                        <Link to={`/gratitude`}>
+                          <Button variant="ghost" className="text-[#486856] hover:bg-white/20 mt-4">
+                            {" "}
+                            {/* sage-dark */}
+                            Explore →
+                          </Button>
+                        </Link>
                     ) : (
                       <Button variant="ghost" className="text-[#486856] hover:bg-white/20 mt-4" disabled>
                         {" "}
@@ -283,6 +292,7 @@ export default function App() {
       <Route path="/features/:featureName" element={<FeatureDetailPage />} />
       <Route path="/journaling" element={<JournalingPage />} /> {/* Add journaling route */}
       <Route path="/habits" element={<HabitTrackerPage />} /> {/* Add habit tracker route */}
+      <Route path="/gratitude" element={<GratitudePage />} /> {/* Add gratitude route */}
     </Routes>
   )
 }
