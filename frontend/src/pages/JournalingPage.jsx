@@ -3,10 +3,11 @@
 import { useState, useEffect } from "react"
 import { Button } from "../components/ui/button"
 import { Card, CardContent } from "../components/ui/card"
-import { ArrowLeft, Plus, MoreHorizontal, Calendar, FileText } from "lucide-react"
+import { Sparkles, Menu, Plus, Calendar, FileText } from "lucide-react"
+import { Sheet, SheetContent, SheetTrigger } from "../components/ui/sheet"
 import { Link } from "react-router-dom"
 import MoodSelector from "../components/ui/MoodSelector.jsx"
-import JournalEntryForm from "../components/ui/JournalEntryForm.jsx"
+
 
 const JournalingPage = () => {
   const [entries, setEntries] = useState([])
@@ -78,23 +79,52 @@ const JournalingPage = () => {
     return moodMap[mood] || "😊"
   }
 
-  if (showEntryForm) {
-    return <JournalEntryForm mood={selectedMood} onSave={handleSaveEntry} onCancel={handleCancelEntry} />
-  }
+  
 
   return (
     <div className="min-h-screen">
-      <div className="bg-gradient-to-br from-[#F2C3B9] via-[#F0DDD6] to-[#D6CBBF] flex items-center justify-between p-4 pt-12 relative z-10">
-        <Link to="/">
-          <Button variant="ghost" size="icon" className="text-[#486856]">
-            <ArrowLeft className="w-6 h-6" />
-          </Button>
+      <nav className="flex items-center justify-between p-6 lg:px-12 backdrop-blur-sm shadow-sm bg-gradient-to-r from-[#F2C3B9] to-[#F0DDD6]">
+        <div className="flex items-center space-x-2">
+          <div className="w-8 h-8 bg-gradient-to-br from-[#486856] to-[#97B3AE] rounded-full flex items-center justify-center">
+            <Sparkles className="w-4 h-4 text-white" />
+          </div>
+          <span className="text-2xl font-bold text-[#486856]">Welly</span>
+        </div>
+
+        <div className="hidden md:flex items-center space-x-8">
+          <Link to="/" className="text-[#486856] hover:text-[#97B3AE] transition-colors">
+            Home
+          </Link>
+          <Link to="/gratitude" className="text-[#486856] hover:text-[#97B3AE] transition-colors">
+            Gratitude
+          </Link>
+          <Link to="/habits" className="text-[#486856] hover:text-[#97B3AE] transition-colors">
+            Habits
         </Link>
-        <h1 className="text-xl font-semibold text-[#486856]">Journal</h1>
-        <Button variant="ghost" size="icon" className="text-[#486856]">
-          <MoreHorizontal className="w-6 h-6" />
-        </Button>
+        <Button className="bg-[#486856] hover:bg-[#97B3AE] text-white border-none">Get Started</Button>
       </div>
+      <Sheet>
+          <SheetTrigger asChild>
+            <Button variant="ghost" size="icon" className="md:hidden text-[#486856]">
+              <Menu className="h-6 w-6" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent className="bg-[#F0DDD6]">
+            <div className="flex flex-col space-y-6 mt-8">
+              <Link to="/" className="text-[#486856] text-lg">
+                Home
+              </Link>
+              <Link to="/gratitude" className="text-[#486856] text-lg">
+                Gratitude
+              </Link>
+              <Link to="/habits" className="text-[#486856] text-lg">
+                Habits
+              </Link>
+              <Button className="bg-[#486856] hover:bg-[#97B3AE] text-white">Get Started</Button>
+            </div>
+          </SheetContent>
+        </Sheet>
+      </nav>
 
       <div
         className="min-h-[calc(100vh-80px)] bg-cover bg-center bg-no-repeat relative"

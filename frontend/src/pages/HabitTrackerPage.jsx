@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react"
 import { Button } from "../components/ui/button"
 import { Card, CardContent } from "../components/ui/card"
-import { ArrowLeft, Plus, MoreHorizontal, Calendar, CheckCircle2, Circle, BarChart3, Trash2 } from "lucide-react"
+import { Sparkles, Menu, Plus, Calendar, CheckCircle2, Circle, BarChart3, Trash2 } from "lucide-react"
+import { Sheet, SheetContent, SheetTrigger } from "../components/ui/sheet"
 import { Link } from "react-router-dom"
 import CreateHabitModal from "../components/ui/CreateHabitModal"
 import MonthlyStatsModal from "../components/ui/MonthlyStatsModal"
@@ -109,17 +110,48 @@ const HabitTrackerPage = () => {
 
   return (
     <div className="min-h-screen">
-      <div className="bg-gradient-to-br from-[#A8C8EC] via-[#B8D4F0] to-[#C8E0F4] flex items-center justify-between p-4 pt-12 relative z-10">
-        <Link to="/">
-          <Button variant="ghost" size="icon" className="text-[#2C5282]">
-            <ArrowLeft className="w-6 h-6" />
-          </Button>
+      <nav className="flex items-center justify-between p-6 lg:px-12 backdrop-blur-sm shadow-sm bg-gradient-to-r from-[#A8C8EC] to-[#B8D4F0]">
+        <div className="flex items-center space-x-2">
+          <div className="w-8 h-8 bg-gradient-to-br from-[#2C5282] to-[#4A90E2] rounded-full flex items-center justify-center">
+            <Sparkles className="w-4 h-4 text-white" />
+          </div>
+          <span className="text-2xl font-bold text-[#2C5282]">Welly</span>
+        </div>
+
+        <div className="hidden md:flex items-center space-x-8">
+          <Link to="/" className="text-[#2C5282] hover:text-[#4A90E2] transition-colors">
+            Home
+          </Link>
+          <Link to="/journaling" className="text-[#2C5282] hover:text-[#4A90E2] transition-colors">
+            Journal
+          </Link>
+          <Link to="/gratitude" className="text-[#2C5282] hover:text-[#4A90E2] transition-colors">
+            Gratitude
         </Link>
-        <h1 className="text-xl font-semibold text-[#2C5282]">Habits</h1>
-        <Button variant="ghost" size="icon" className="text-[#2C5282]">
-          <MoreHorizontal className="w-6 h-6" />
-        </Button>
+        <Button className="bg-[#2C5282] hover:bg-[#4A90E2] text-white border-none">Get Started</Button>
       </div>
+      <Sheet>
+          <SheetTrigger asChild>
+            <Button variant="ghost" size="icon" className="md:hidden text-[#2C5282]">
+              <Menu className="h-6 w-6" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent className="bg-[#B8D4F0]">
+            <div className="flex flex-col space-y-6 mt-8">
+              <Link to="/" className="text-[#2C5282] text-lg">
+                Home
+              </Link>
+              <Link to="/journaling" className="text-[#2C5282] text-lg">
+                Journal
+              </Link>
+              <Link to="/gratitude" className="text-[#2C5282] text-lg">
+                Gratitude
+              </Link>
+              <Button className="bg-[#2C5282] hover:bg-[#4A90E2] text-white">Get Started</Button>
+            </div>
+          </SheetContent>
+        </Sheet>
+      </nav>
 
       <div
         className="min-h-[calc(100vh-80px)] relative"

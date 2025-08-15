@@ -8,6 +8,7 @@ import "./App.css" // Import the minimal CSS file
 import JournalingPage from "./pages/JournalingPage" // Import JournalingPage
 import HabitTrackerPage from "./pages/HabitTrackerPage" // Import HabitTrackerPage
 import GratitudePage from "./pages/GratitudePage" // Import GratitudePage
+import MemoryLanePage from "./pages/MemoryLanePage"
 
 // Main component for the landing page content
 function HomePage() {
@@ -163,61 +164,32 @@ function HomePage() {
           </div>
         </section>
         {/* Features Section */}
-        <section
-          id="features"
-          className={`py-20 px-6`} // Removed conditional opacity classes
-        >
+        <section id="features" className="py-20 px-6">
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-light text-[black] mb-4">Wellness Features</h2> {/* sage-dark */}
-              <p className="text-lg text-[#6B8E7A] max-w-2xl mx-auto">
-                {" "}
-                {/* sage-medium */}
-                Explore our thoughtfully designed tools to support your mental health and wellbeing journey
-              </p>
+              <h2 className="text-4xl md:text-5xl font-light text-[black] mb-4">Wellness Features</h2>
+              <p className="text-lg text-[#6B8E7A] max-w-2xl mx-auto">Explore our thoughtfully designed tools</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {features.map((feature, index) => (
-                <Card
-                  key={index}
-                  className={`border-none shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group cursor-pointer rounded-2xl ${feature.color}`}
-                >
+                <Card key={index} className={`border-none shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group cursor-pointer rounded-2xl ${feature.color}`}>
                   <CardContent className="p-6 h-full flex flex-col items-center text-center space-y-4 group-hover:scale-105 transition-transform duration-300">
                     <div className="w-10 h-8 bg-white/40 rounded-full flex items-center justify-center backdrop-blur-sm">
-                      <feature.icon className="w-8 h-8 text-[#97B3AE]" /> {/* sage */}
+                      <feature.icon className="w-8 h-8 text-[#97B3AE]" />
                     </div>
-                    <h3 className="text-xl font-semibold text-[#486856]">{feature.title}</h3> {/* sage-dark */}
-                    <p className="text-[#486856] leading-relaxed">{feature.description}</p> {/* sage-dark */}
+                    <h3 className="text-xl font-semibold text-[#486856]">{feature.title}</h3>
+                    <p className="text-[#486856] leading-relaxed">{feature.description}</p>
+
                     {feature.slug === "journaling" ? (
-                      <Link to={`/journaling`}>
-                        <Button variant="ghost" className="text-[#486856] hover:bg-white/20 mt-4">
-                          {" "}
-                          {/* sage-dark */}
-                          Explore →
-                        </Button>
-                      </Link>
+                      <Link to={`/journaling`}><Button variant="ghost" className="text-[#486856] hover:bg-white/20 mt-4">Explore →</Button></Link>
                     ) : feature.slug === "habittracker" ? (
-                      <Link to={`/habits`}>
-                        <Button variant="ghost" className="text-[#486856] hover:bg-white/20 mt-4">
-                          {" "}
-                          {/* sage-dark */}
-                          Explore →
-                        </Button>
-                      </Link>
-                       ) : feature.slug === "gratitudecheck" ? (
-                        <Link to={`/gratitude`}>
-                          <Button variant="ghost" className="text-[#486856] hover:bg-white/20 mt-4">
-                            {" "}
-                            {/* sage-dark */}
-                            Explore →
-                          </Button>
-                        </Link>
+                      <Link to={`/habits`}><Button variant="ghost" className="text-[#486856] hover:bg-white/20 mt-4">Explore →</Button></Link>
+                    ) : feature.slug === "gratitudecheck" ? (
+                      <Link to={`/gratitude`}><Button variant="ghost" className="text-[#486856] hover:bg-white/20 mt-4">Explore →</Button></Link>
+                    ) : feature.slug === "memorylane" ? (
+                      <Link to={`/memory`}><Button variant="ghost" className="text-[#486856] hover:bg-white/20 mt-4">Explore →</Button></Link>
                     ) : (
-                      <Button variant="ghost" className="text-[#486856] hover:bg-white/20 mt-4" disabled>
-                        {" "}
-                        {/* sage-dark */}
-                        Coming Soon →
-                      </Button>
+                      <Button variant="ghost" className="text-[#486856] hover:bg-white/20 mt-4" disabled>Coming Soon →</Button>
                     )}
                   </CardContent>
                 </Card>
@@ -293,6 +265,7 @@ export default function App() {
       <Route path="/journaling" element={<JournalingPage />} /> {/* Add journaling route */}
       <Route path="/habits" element={<HabitTrackerPage />} /> {/* Add habit tracker route */}
       <Route path="/gratitude" element={<GratitudePage />} /> {/* Add gratitude route */}
+      <Route path="/memory" element={<MemoryLanePage />} /> {/* Add memory route */}
     </Routes>
   )
 }
