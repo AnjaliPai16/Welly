@@ -7,6 +7,7 @@ import { Sparkles, Menu, Plus, Calendar, FileText } from "lucide-react"
 import { Sheet, SheetContent, SheetTrigger } from "../components/ui/sheet"
 import { Link } from "react-router-dom"
 import MoodSelector from "../components/ui/MoodSelector.jsx"
+import JournalEntryForm from "../components/ui/JournalEntryForm.jsx"
 
 
 const JournalingPage = () => {
@@ -141,18 +142,7 @@ const JournalingPage = () => {
 
         {/* Content container with relative positioning */}
         <div className="relative z-10">
-          {/* Challenge Banner */}
-          <div className="mx-4 mb-6 pt-6">
-            <Card className="bg-gradient-to-r from-[#97B3AE] to-[#D2E0D3] border-none shadow-lg">
-              <CardContent className="p-4 flex items-center justify-between">
-                <div className="flex-1">
-                  <h3 className="text-white font-semibold text-lg mb-1">3-Day Habit Challenge</h3>
-                  <p className="text-white/90 text-sm">Build diary habit to get a Pro sticker pack! Write diary now!</p>
-                </div>
-                <div className="text-4xl">🎁</div>
-              </CardContent>
-            </Card>
-          </div>
+          
 
           {/* Year Header */}
           <div className="px-4 mb-4">
@@ -216,6 +206,12 @@ const JournalingPage = () => {
       {/* Mood Selector Modal */}
       {showMoodSelector && (
         <MoodSelector onMoodSelect={handleMoodSelected} onClose={() => setShowMoodSelector(false)} />
+      )}
+       {/* Journal Entry Form */}
+       {showEntryForm && (
+        <div className="fixed inset-0 z-50">
+          <JournalEntryForm mood={selectedMood} onSave={handleSaveEntry} onCancel={handleCancelEntry} />
+        </div>
       )}
     </div>
   )
