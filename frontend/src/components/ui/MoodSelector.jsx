@@ -2,6 +2,7 @@
 
 import { Card, CardContent } from "./card.jsx"
 import { Button } from "./button.jsx"
+import { X } from "lucide-react"
 
 const MoodSelector = ({ onMoodSelect, onClose }) => {
   const moods = [
@@ -23,8 +24,8 @@ const MoodSelector = ({ onMoodSelect, onClose }) => {
         <CardContent className="p-6">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-xl font-semibold text-[#486856]">How's your day?</h3>
-            <Button variant="ghost" className="text-[#97B3AE] text-sm">
-              MORE
+            <Button variant="ghost" onClick={onClose} className="text-[#97B3AE] hover:text-[#486856] p-1 h-auto">
+              <X size={20} />
             </Button>
           </div>
 

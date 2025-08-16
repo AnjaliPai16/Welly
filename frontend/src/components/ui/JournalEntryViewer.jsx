@@ -1,8 +1,9 @@
 "use client"
 
 import { Button } from "./button"
+import { Edit, Trash2 } from "lucide-react"
 
-const JournalEntryViewer = ({ entry, onClose }) => {
+const JournalEntryViewer = ({ entry, onClose, onEdit, onDelete }) => {
   const getMoodEmoji = (mood) => {
     const moodMap = {
       neutral: "😐",
@@ -17,6 +18,18 @@ const JournalEntryViewer = ({ entry, onClose }) => {
       crying: "😢",
     }
     return moodMap[mood] || "😊"
+  }
+
+  const handleDelete = () => {
+    if (window.confirm("Are you sure you want to delete this journal entry? This action cannot be undone.")) {
+      onDelete(entry.id)
+      onClose()
+    }
+  }
+
+  const handleEdit = () => {
+    onEdit(entry)
+    onClose()
   }
 
   if (!entry) return null
@@ -41,12 +54,46 @@ const JournalEntryViewer = ({ entry, onClose }) => {
                   </p>
                 </div>
               </div>
-              <Button variant="ghost" size="icon" onClick={onClose} className="text-[#97B3AE] hover:text-[#486856]">
-                ✕
-              </Button>
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleEdit}
+                  className="text-[#97B3AE] hover:text-[#486856]"
+                  title="Edit entry"
+                >
+                  <Edit className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleDelete}
+                  className="text-[#97B3AE] hover:text-red-500"
+                  title="Delete entry"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+                <Button variant="ghost" size="icon" onClick={onClose} className="text-[#97B3AE] hover:text-[#486856]">
+                  ✕
+                </Button>
+              </div>
             </div>
           </div>
           <div className="p-6 overflow-y-auto max-h-[60vh]">
+            {(entry.tags?.length > 0 || entry.isFavorite) && (
+              <div className="flex items-center space-x-2 mb-4">
+                {entry.isFavorite && <span className="text-yellow-500 text-lg">⭐</span>}
+                {entry.tags?.length > 0 && (
+                  <div className="flex flex-wrap gap-1">
+                    {entry.tags.map((tag, index) => (
+                      <span key={index} className="bg-[#97B3AE]/20 text-[#486856] px-2 py-1 rounded-full text-xs">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
             <div className="prose prose-sm max-w-none">
               <p className="text-[#486856] whitespace-pre-wrap leading-relaxed">
                 {entry.content || "No content available."}

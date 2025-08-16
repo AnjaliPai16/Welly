@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { Button } from "../components/ui/button"
 import { Card, CardContent } from "../components/ui/card"
-import { Sparkles, Menu, Plus, Calendar, FileText } from "lucide-react"
+import { Sparkles, Menu, Plus, Calendar, FileText, Edit, Trash2 } from "lucide-react"
 import { Sheet, SheetContent, SheetTrigger } from "../components/ui/sheet"
 import { Link } from "react-router-dom"
 import MoodSelector from "../components/ui/MoodSelector.jsx"
@@ -16,6 +16,9 @@ const JournalingPage = () => {
   const [selectedMood, setSelectedMood] = useState(null)
   const [selectedEntry, setSelectedEntry] = useState(null)
   const [showEntryViewer, setShowEntryViewer] = useState(false)
+  const [showCalendarView, setShowCalendarView] = useState(false)
+  const [showStats, setShowStats] = useState(false)
+  const [editingEntry, setEditingEntry] = useState(null)
 
   useEffect(() => {
     const savedEntries = localStorage.getItem("journalEntries")
@@ -39,14 +42,20 @@ const JournalingPage = () => {
   }
 
   const handleSaveEntry = (entryData) => {
-    const newEntry = {
-      id: Date.now(),
-      ...entryData,
-      mood: selectedMood,
-      date: new Date().toISOString(),
-      status: "saved",
+    if (editingEntry) {
+      setEntries((prev) => prev.map((entry) => (entry.id === entryData.id ? { ...entry, ...entryData } : entry)))
+      setEditingEntry(null)
+    } else {
+      const newEntry = {
+        id: Date.now(),
+        ...entryData,
+        mood: selectedMood,
+        date: new Date().toISOString(),
+        status: "saved",
+      }
+      setEntries((prev) => [newEntry, ...prev])
     }
-    setEntries((prev) => [newEntry, ...prev])
+
     setShowEntryForm(false)
     setSelectedMood(null)
   }
@@ -54,6 +63,7 @@ const JournalingPage = () => {
   const handleCancelEntry = () => {
     setShowEntryForm(false)
     setSelectedMood(null)
+    setEditingEntry(null)
   }
 
   const handleOpenEntry = (entry) => {
@@ -64,6 +74,23 @@ const JournalingPage = () => {
   const handleCloseEntryViewer = () => {
     setSelectedEntry(null)
     setShowEntryViewer(false)
+  }
+
+  const handleCalendarView = () => {
+    setShowCalendarView(true)
+  }
+
+  const handleShowStats = () => {
+    setShowStats(true)
+  }
+
+  const handleEditEntry = (entry) => {
+    setEditingEntry(entry)
+    setShowEntryForm(true)
+  }
+
+  const handleDeleteEntry = (entryId) => {
+    setEntries((prev) => prev.filter((entry) => entry.id !== entryId))
   }
 
   const formatDate = (dateString) => {
@@ -89,9 +116,23 @@ const JournalingPage = () => {
     return moodMap[mood] || "😊"
   }
 
+  const getEntryStats = () => {
+    const totalEntries = entries.length
+    const moodCounts = entries.reduce((acc, entry) => {
+      acc[entry.mood] = (acc[entry.mood] || 0) + 1
+      return acc
+    }, {})
+    const mostCommonMood = Object.keys(moodCounts).reduce(
+      (a, b) => (moodCounts[a] > moodCounts[b] ? a : b),
+      Object.keys(moodCounts)[0],
+    )
+    return { totalEntries, moodCounts, mostCommonMood }
+  }
+
   return (
     <div className="min-h-screen">
-      <nav className="flex items-center justify-between p-6 lg:px-12 backdrop-blur-sm shadow-sm bg-gradient-to-r from-[#F2C3B9] to-[#F0DDD6]">
+<nav className="flex items-center justify-between p-6 lg:px-12 shadow-sm bg-[#F2C3B9]">
+
         <div className="flex items-center space-x-2">
           <div className="w-8 h-8 bg-gradient-to-br from-[#486856] to-[#97B3AE] rounded-full flex items-center justify-center">
             <Sparkles className="w-4 h-4 text-white" />
@@ -217,7 +258,12 @@ const JournalingPage = () => {
       <div className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-sm border-t border-[#97B3AE]/20">
         <div className="flex items-center justify-center py-4">
           <div className="flex items-center space-x-8">
-            <Button variant="ghost" size="icon" className="text-[#97B3AE] bg-[#97B3AE]/10 rounded-full w-12 h-12">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-[#97B3AE] bg-[#97B3AE]/10 rounded-full w-12 h-12"
+              onClick={handleCalendarView}
+            >
               <Calendar className="w-6 h-6" />
             </Button>
             <Button
@@ -226,7 +272,12 @@ const JournalingPage = () => {
             >
               <Plus className="w-8 h-8" />
             </Button>
-            <Button variant="ghost" size="icon" className="text-[#97B3AE] bg-[#97B3AE]/10 rounded-full w-12 h-12">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-[#97B3AE] bg-[#97B3AE]/10 rounded-full w-12 h-12"
+              onClick={handleShowStats}
+            >
               <FileText className="w-6 h-6" />
             </Button>
           </div>
@@ -239,7 +290,12 @@ const JournalingPage = () => {
 
       {showEntryForm && (
         <div className="fixed inset-0 z-50">
-          <JournalEntryForm mood={selectedMood} onSave={handleSaveEntry} onCancel={handleCancelEntry} />
+          <JournalEntryForm
+            mood={selectedMood}
+            onSave={handleSaveEntry}
+            onCancel={handleCancelEntry}
+            editEntry={editingEntry}
+          />
         </div>
       )}
 
@@ -263,22 +319,157 @@ const JournalingPage = () => {
                       </p>
                     </div>
                   </div>
+                  <div className="flex items-center space-x-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => {
+                        handleEditEntry(selectedEntry)
+                        handleCloseEntryViewer()
+                      }}
+                      className="text-[#97B3AE] hover:text-[#486856]"
+                      title="Edit entry"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => {
+                        if (
+                          window.confirm(
+                            "Are you sure you want to delete this journal entry? This action cannot be undone.",
+                          )
+                        ) {
+                          handleDeleteEntry(selectedEntry.id)
+                          handleCloseEntryViewer()
+                        }
+                      }}
+                      className="text-[#97B3AE] hover:text-red-500"
+                      title="Delete entry"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={handleCloseEntryViewer}
+                      className="text-[#97B3AE] hover:text-[#486856]"
+                    >
+                      ✕
+                    </Button>
+                  </div>
+                </div>
+              </div>
+              <div className="p-6 overflow-y-auto max-h-[60vh]">
+                {(selectedEntry.tags?.length > 0 || selectedEntry.isFavorite) && (
+                  <div className="flex items-center space-x-2 mb-4">
+                    {selectedEntry.isFavorite && <span className="text-yellow-500 text-lg">⭐</span>}
+                    {selectedEntry.tags?.length > 0 && (
+                      <div className="flex flex-wrap gap-1">
+                        {selectedEntry.tags.map((tag, index) => (
+                          <span key={index} className="bg-[#97B3AE]/20 text-[#486856] px-2 py-1 rounded-full text-xs">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+                <div className="prose prose-sm max-w-none">
+                  <p className="text-[#486856] whitespace-pre-wrap leading-relaxed">
+                    {selectedEntry.content || "No content available."}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showCalendarView && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm">
+          <div className="flex items-center justify-center min-h-screen p-4">
+            <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+              <div className="p-6 border-b border-gray-200">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-xl font-semibold text-[#486856]">Calendar View</h2>
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={handleCloseEntryViewer}
+                    onClick={() => setShowCalendarView(false)}
                     className="text-[#97B3AE] hover:text-[#486856]"
                   >
                     ✕
                   </Button>
                 </div>
               </div>
-              <div className="p-6 overflow-y-auto max-h-[60vh]">
-                <div className="prose prose-sm max-w-none">
-                  <p className="text-[#486856] whitespace-pre-wrap leading-relaxed">
-                    {selectedEntry.content || "No content available."}
-                  </p>
+              <div className="p-6">
+                <div className="space-y-3">
+                  {entries.length === 0 ? (
+                    <p className="text-[#97B3AE] text-center">No entries to display</p>
+                  ) : (
+                    entries.slice(0, 10).map((entry) => (
+                      <div key={entry.id} className="flex items-center justify-between p-2 bg-[#F0DDD6]/30 rounded">
+                        <div className="flex items-center space-x-2">
+                          <span className="text-lg">{getMoodEmoji(entry.mood)}</span>
+                          <span className="text-sm text-[#486856]">{new Date(entry.date).toLocaleDateString()}</span>
+                        </div>
+                        <span className="text-xs text-[#97B3AE]">{entry.title || "Untitled"}</span>
+                      </div>
+                    ))
+                  )}
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showStats && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm">
+          <div className="flex items-center justify-center min-h-screen p-4">
+            <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+              <div className="p-6 border-b border-gray-200">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-xl font-semibold text-[#486856]">Journal Statistics</h2>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setShowStats(false)}
+                    className="text-[#97B3AE] hover:text-[#486856]"
+                  >
+                    ✕
+                  </Button>
+                </div>
+              </div>
+              <div className="p-6">
+                {entries.length === 0 ? (
+                  <p className="text-[#97B3AE] text-center">No entries to analyze</p>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="text-center">
+                      <div className="text-3xl font-bold text-[#486856]">{getEntryStats().totalEntries}</div>
+                      <div className="text-sm text-[#97B3AE]">Total Entries</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl">{getMoodEmoji(getEntryStats().mostCommonMood)}</div>
+                      <div className="text-sm text-[#97B3AE]">Most Common Mood</div>
+                    </div>
+                    <div className="space-y-2">
+                      <h3 className="text-sm font-medium text-[#486856]">Mood Distribution:</h3>
+                      {Object.entries(getEntryStats().moodCounts).map(([mood, count]) => (
+                        <div key={mood} className="flex items-center justify-between text-sm">
+                          <span className="flex items-center space-x-2">
+                            <span>{getMoodEmoji(mood)}</span>
+                            <span className="text-[#486856] capitalize">{mood}</span>
+                          </span>
+                          <span className="text-[#97B3AE]">{count}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
