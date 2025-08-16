@@ -79,14 +79,14 @@ export default function CalmingPlaylistPage() {
   }
 
   return (
-    <div className="min-h-screen relative bg-cover bg-center bg-fixed" style={{ backgroundImage: 'url("/bg.jpg")' }}>
+    <div className="min-h-screen relative bg-cover bg-center bg-fixed" style={{ backgroundImage: 'url("music.jpg")' }}>
       {/* Background Overlay with sage green tint */}
       <div className="fixed inset-0 pointer-events-none z-0 bg-[#97B3AE]/20" />
 
       {/* Content Container */}
       <div className="relative z-10">
         {/* Navigation */}
-        <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between p-6 lg:px-12 backdrop-blur-sm shadow-sm bg-[#97B3AE]/90">
+        <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between p-6 lg:px-12 backdrop-blur-sm shadow-sm bg-[#025043]/90">
           <div className="flex items-center space-x-2">
             <div className="w-8 h-8 bg-gradient-to-br from-[#D2E0D3] to-[#F0EEEA] rounded-full flex items-center justify-center">
               <Sparkles className="w-4 h-4 text-[#486856]" />
