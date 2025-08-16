@@ -9,14 +9,14 @@ import { Link } from "react-router-dom"
 import MoodSelector from "../components/ui/MoodSelector.jsx"
 import JournalEntryForm from "../components/ui/JournalEntryForm.jsx"
 
-
 const JournalingPage = () => {
   const [entries, setEntries] = useState([])
   const [showMoodSelector, setShowMoodSelector] = useState(false)
   const [showEntryForm, setShowEntryForm] = useState(false)
   const [selectedMood, setSelectedMood] = useState(null)
+  const [selectedEntry, setSelectedEntry] = useState(null)
+  const [showEntryViewer, setShowEntryViewer] = useState(false)
 
-  // Load entries from localStorage on component mount
   useEffect(() => {
     const savedEntries = localStorage.getItem("journalEntries")
     if (savedEntries) {
@@ -24,7 +24,6 @@ const JournalingPage = () => {
     }
   }, [])
 
-  // Save entries to localStorage whenever entries change
   useEffect(() => {
     localStorage.setItem("journalEntries", JSON.stringify(entries))
   }, [entries])
@@ -57,6 +56,16 @@ const JournalingPage = () => {
     setSelectedMood(null)
   }
 
+  const handleOpenEntry = (entry) => {
+    setSelectedEntry(entry)
+    setShowEntryViewer(true)
+  }
+
+  const handleCloseEntryViewer = () => {
+    setSelectedEntry(null)
+    setShowEntryViewer(false)
+  }
+
   const formatDate = (dateString) => {
     const date = new Date(dateString)
     const day = date.getDate()
@@ -80,8 +89,6 @@ const JournalingPage = () => {
     return moodMap[mood] || "😊"
   }
 
-  
-
   return (
     <div className="min-h-screen">
       <nav className="flex items-center justify-between p-6 lg:px-12 backdrop-blur-sm shadow-sm bg-gradient-to-r from-[#F2C3B9] to-[#F0DDD6]">
@@ -96,22 +103,24 @@ const JournalingPage = () => {
           <Link to="/" className="text-[#486856] hover:text-[#97B3AE] transition-colors">
             Home
           </Link>
-          <Link to="/gratitude" className="text-[#486856] hover:text-[#97B3AE] transition-colors">
-            Gratitude
+          <Link to="/journaling" className="text-[#486856] hover:text-[#97B3AE] transition-colors font-semibold">
+            Journal
           </Link>
           <Link to="/habits" className="text-[#486856] hover:text-[#97B3AE] transition-colors">
             Habits
-        </Link>
-       
+          </Link>
+          <Link to="/gratitude" className="text-[#486856] hover:text-[#97B3AE] transition-colors">
+            Gratitude
+          </Link>
           <Link to="/memory" className="text-[#486856] hover:text-[#97B3AE] transition-colors">
             Memory
           </Link>
           <Link to="/playlist" className="text-[#486856] hover:text-[#97B3AE] transition-colors">
             Playlist
           </Link>
-        <Button className="bg-[#486856] hover:bg-[#97B3AE] text-white border-none">Get Started</Button>
-      </div>
-      <Sheet>
+          <Button className="bg-[#486856] hover:bg-[#97B3AE] text-white border-none">Get Started</Button>
+        </div>
+        <Sheet>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon" className="md:hidden text-[#486856]">
               <Menu className="h-6 w-6" />
@@ -122,11 +131,20 @@ const JournalingPage = () => {
               <Link to="/" className="text-[#486856] text-lg">
                 Home
               </Link>
-              <Link to="/gratitude" className="text-[#486856] text-lg">
-                Gratitude
+              <Link to="/journaling" className="text-[#486856] text-lg font-semibold">
+                Journal
               </Link>
               <Link to="/habits" className="text-[#486856] text-lg">
                 Habits
+              </Link>
+              <Link to="/gratitude" className="text-[#486856] text-lg">
+                Gratitude
+              </Link>
+              <Link to="/memory" className="text-[#486856] text-lg">
+                Memory
+              </Link>
+              <Link to="/playlist" className="text-[#486856] text-lg">
+                Playlist
               </Link>
               <Button className="bg-[#486856] hover:bg-[#97B3AE] text-white">Get Started</Button>
             </div>
@@ -140,16 +158,13 @@ const JournalingPage = () => {
       >
         <div className="absolute inset-0 bg-white/30 backdrop-blur-[0.5px]"></div>
 
-        {/* Content container with relative positioning */}
         <div className="relative z-10">
           
 
-          {/* Year Header */}
           <div className="px-4 mb-4">
             <h2 className="text-2xl font-light text-[#486856]">{new Date().getFullYear()}</h2>
           </div>
 
-          {/* Journal Entries */}
           <div className="px-4 space-y-4 pb-24">
             {entries.length === 0 ? (
               <div className="text-center py-12">
@@ -161,19 +176,35 @@ const JournalingPage = () => {
               entries.map((entry) => {
                 const { day, month } = formatDate(entry.date)
                 return (
-                  <Card key={entry.id} className="bg-white/70 backdrop-blur-sm border-none shadow-md">
-                    <CardContent className="p-4 flex items-center justify-between">
-                      <div className="flex items-center space-x-4">
-                        <div className="text-center">
-                          <div className="text-3xl font-light text-[#486856]">{day}</div>
-                          <div className="text-sm text-[#97B3AE]">{month}</div>
+                  <Card
+                    key={entry.id}
+                    className="bg-white/70 backdrop-blur-sm border-none shadow-md cursor-pointer hover:bg-white/80 transition-colors"
+                    onClick={() => handleOpenEntry(entry)}
+                  >
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center space-x-4">
+                          <div className="text-center">
+                            <div className="text-3xl font-light text-[#486856]">{day}</div>
+                            <div className="text-sm text-[#97B3AE]">{month}</div>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <FileText className="w-4 h-4 text-[#97B3AE]" />
+                            <span className="text-sm text-[#97B3AE]">{entry.status}</span>
+                          </div>
                         </div>
-                        <div className="flex items-center space-x-2">
-                          <FileText className="w-4 h-4 text-[#97B3AE]" />
-                          <span className="text-sm text-[#97B3AE]">{entry.status}</span>
-                        </div>
+                        <div className="text-2xl">{getMoodEmoji(entry.mood)}</div>
                       </div>
-                      <div className="text-2xl">{getMoodEmoji(entry.mood)}</div>
+                      {entry.title && (
+                        <div className="mt-2">
+                          <h3 className="text-[#486856] font-medium text-sm line-clamp-1">{entry.title}</h3>
+                        </div>
+                      )}
+                      {entry.content && (
+                        <div className="mt-1">
+                          <p className="text-[#97B3AE] text-xs line-clamp-2">{entry.content}</p>
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
                 )
@@ -183,7 +214,6 @@ const JournalingPage = () => {
         </div>
       </div>
 
-      {/* Bottom Navigation */}
       <div className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-sm border-t border-[#97B3AE]/20">
         <div className="flex items-center justify-center py-4">
           <div className="flex items-center space-x-8">
@@ -203,14 +233,55 @@ const JournalingPage = () => {
         </div>
       </div>
 
-      {/* Mood Selector Modal */}
       {showMoodSelector && (
         <MoodSelector onMoodSelect={handleMoodSelected} onClose={() => setShowMoodSelector(false)} />
       )}
-       {/* Journal Entry Form */}
-       {showEntryForm && (
+
+      {showEntryForm && (
         <div className="fixed inset-0 z-50">
           <JournalEntryForm mood={selectedMood} onSave={handleSaveEntry} onCancel={handleCancelEntry} />
+        </div>
+      )}
+
+      {showEntryViewer && selectedEntry && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm">
+          <div className="flex items-center justify-center min-h-screen p-4">
+            <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
+              <div className="p-6 border-b border-gray-200">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="text-2xl">{getMoodEmoji(selectedEntry.mood)}</div>
+                    <div>
+                      <h2 className="text-xl font-semibold text-[#486856]">{selectedEntry.title || "Journal Entry"}</h2>
+                      <p className="text-sm text-[#97B3AE]">
+                        {new Date(selectedEntry.date).toLocaleDateString("en-US", {
+                          weekday: "long",
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })}
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleCloseEntryViewer}
+                    className="text-[#97B3AE] hover:text-[#486856]"
+                  >
+                    ✕
+                  </Button>
+                </div>
+              </div>
+              <div className="p-6 overflow-y-auto max-h-[60vh]">
+                <div className="prose prose-sm max-w-none">
+                  <p className="text-[#486856] whitespace-pre-wrap leading-relaxed">
+                    {selectedEntry.content || "No content available."}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
