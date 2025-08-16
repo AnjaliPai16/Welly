@@ -87,14 +87,20 @@ export default function FeatureDetailPage() {
           <Link to="/" className="text-[#486856] hover:text-[#D6CBBF] transition-colors">
             Home
           </Link>
-          <Link to="/#features" className="text-[#486856] hover:text-[#D6CBBF] transition-colors">
-            Features
+          <Link to="/journaling" className="text-[#486856] hover:text-[#D6CBBF] transition-colors">
+            Journal
           </Link>
-          <Link to="/#about" className="text-[#486856] hover:text-[#D6CBBF] transition-colors">
-            About
+          <Link to="/habits" className="text-[#486856] hover:text-[#D6CBBF] transition-colors">
+            Habits
           </Link>
-          <Link to="/#contact" className="text-[#486856] hover:text-[#D6CBBF] transition-colors">
-            Contact
+          <Link to="/gratitude" className="text-[#486856] hover:text-[#D6CBBF] transition-colors">
+            Gratitude
+          </Link>
+          <Link to="/memory" className="text-[#486856] hover:text-[#D6CBBF] transition-colors">
+            Memory
+          </Link>
+          <Link to="/playlist" className="text-[#486856] hover:text-[#D6CBBF] transition-colors">
+            Playlist
           </Link>
           <Button className="bg-[#97B3AE] hover:bg-[#D6CBBF] text-white border-none">Get Started</Button>
         </div>
@@ -109,14 +115,20 @@ export default function FeatureDetailPage() {
               <Link to="/" className="text-[#97B3AE] text-lg">
                 Home
               </Link>
-              <Link to="/#features" className="text-[#97B3AE] text-lg">
-                Features
+              <Link to="/journaling" className="text-[#97B3AE] text-lg">
+                Journal
               </Link>
-              <Link to="/#about" className="text-[#97B3AE] text-lg">
-                About
+              <Link to="/habits" className="text-[#97B3AE] text-lg">
+                Habits
               </Link>
-              <Link to="/#contact" className="text-[#97B3AE] text-lg">
-                Contact
+              <Link to="/gratitude" className="text-[#97B3AE] text-lg">
+                Gratitude
+              </Link>
+              <Link to="/memory" className="text-[#97B3AE] text-lg">
+                Memory
+              </Link>
+              <Link to="/playlist" className="text-[#97B3AE] text-lg">
+                Playlist
               </Link>
               <Button className="bg-[#97B3AE] hover:bg-[#D6CBBF] text-white">Get Started</Button>
             </div>
