@@ -9,6 +9,9 @@ import JournalingPage from "./pages/JournalingPage" // Import JournalingPage
 import HabitTrackerPage from "./pages/HabitTrackerPage" // Import HabitTrackerPage
 import GratitudePage from "./pages/GratitudePage" // Import GratitudePage
 import MemoryLanePage from "./pages/MemoryLanePage"
+import CalmingPlaylistPage from "./pages/CalmingPlaylistPage" // Added import for CalmingPlaylistPage
+import { usePlaylist } from "./contexts/PlaylistContext" // Added import for playlist context
+import MusicPlayer from "./components/MusicPlayer" // Added import for persistent music player
 
 // Main component for the landing page content
 function HomePage() {
@@ -172,7 +175,10 @@ function HomePage() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {features.map((feature, index) => (
-                <Card key={index} className={`border-none shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group cursor-pointer rounded-2xl ${feature.color}`}>
+                <Card
+                  key={index}
+                  className={`border-none shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group cursor-pointer rounded-2xl ${feature.color}`}
+                >
                   <CardContent className="p-6 h-full flex flex-col items-center text-center space-y-4 group-hover:scale-105 transition-transform duration-300">
                     <div className="w-10 h-8 bg-white/40 rounded-full flex items-center justify-center backdrop-blur-sm">
                       <feature.icon className="w-8 h-8 text-[#97B3AE]" />
@@ -181,15 +187,39 @@ function HomePage() {
                     <p className="text-[#486856] leading-relaxed">{feature.description}</p>
 
                     {feature.slug === "journaling" ? (
-                      <Link to={`/journaling`}><Button variant="ghost" className="text-[#486856] hover:bg-white/20 mt-4">Explore →</Button></Link>
+                      <Link to={`/journaling`}>
+                        <Button variant="ghost" className="text-[#486856] hover:bg-white/20 mt-4">
+                          Explore →
+                        </Button>
+                      </Link>
                     ) : feature.slug === "habittracker" ? (
-                      <Link to={`/habits`}><Button variant="ghost" className="text-[#486856] hover:bg-white/20 mt-4">Explore →</Button></Link>
+                      <Link to={`/habits`}>
+                        <Button variant="ghost" className="text-[#486856] hover:bg-white/20 mt-4">
+                          Explore →
+                        </Button>
+                      </Link>
                     ) : feature.slug === "gratitudecheck" ? (
-                      <Link to={`/gratitude`}><Button variant="ghost" className="text-[#486856] hover:bg-white/20 mt-4">Explore →</Button></Link>
+                      <Link to={`/gratitude`}>
+                        <Button variant="ghost" className="text-[#486856] hover:bg-white/20 mt-4">
+                          Explore →
+                        </Button>
+                      </Link>
                     ) : feature.slug === "memorylane" ? (
-                      <Link to={`/memory`}><Button variant="ghost" className="text-[#486856] hover:bg-white/20 mt-4">Explore →</Button></Link>
+                      <Link to={`/memory`}>
+                        <Button variant="ghost" className="text-[#486856] hover:bg-white/20 mt-4">
+                          Explore →
+                        </Button>
+                      </Link>
+                    ) : feature.slug === "calmingplaylist" ? (
+                      <Link to={`/playlist`}>
+                        <Button variant="ghost" className="text-[#486856] hover:bg-white/20 mt-4">
+                          Explore →
+                        </Button>
+                      </Link>
                     ) : (
-                      <Button variant="ghost" className="text-[#486856] hover:bg-white/20 mt-4" disabled>Coming Soon →</Button>
+                      <Button variant="ghost" className="text-[#486856] hover:bg-white/20 mt-4" disabled>
+                        Coming Soon →
+                      </Button>
                     )}
                   </CardContent>
                 </Card>
@@ -258,14 +288,32 @@ function HomePage() {
 }
 
 export default function App() {
+  const { currentTrack, currentPlaylist, currentTrackIndex, playTrack } = usePlaylist()
+
   return (
-    <Routes>
-      <Route path="/" element={<HomePage />} />
-      <Route path="/features/:featureName" element={<FeatureDetailPage />} />
-      <Route path="/journaling" element={<JournalingPage />} /> {/* Add journaling route */}
-      <Route path="/habits" element={<HabitTrackerPage />} /> {/* Add habit tracker route */}
-      <Route path="/gratitude" element={<GratitudePage />} /> {/* Add gratitude route */}
-      <Route path="/memory" element={<MemoryLanePage />} /> {/* Add memory route */}
-    </Routes>
+    <div className="relative">
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/features/:featureName" element={<FeatureDetailPage />} />
+        <Route path="/journaling" element={<JournalingPage />} />
+        <Route path="/habits" element={<HabitTrackerPage />} />
+        <Route path="/gratitude" element={<GratitudePage />} />
+        <Route path="/memory" element={<MemoryLanePage />} />
+        <Route path="/playlist" element={<CalmingPlaylistPage />} />
+      </Routes>
+
+      {currentTrack && (
+        <div className="fixed bottom-0 left-0 right-0 z-50 p-4 bg-white/95 backdrop-blur-sm border-t border-[#97B3AE]/30 shadow-lg">
+          <div className="max-w-7xl mx-auto">
+            <MusicPlayer
+              currentTrack={currentTrack}
+              playlist={currentPlaylist?.tracks || []}
+              currentIndex={currentTrackIndex}
+              onTrackChange={(track, index) => playTrack(track, currentPlaylist, index)}
+            />
+          </div>
+        </div>
+      )}
+    </div>
   )
 }
