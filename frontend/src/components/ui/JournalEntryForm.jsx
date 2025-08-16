@@ -80,18 +80,7 @@ const JournalEntryForm = ({ mood, onSave, onCancel, editEntry = null }) => {
     setTags(tags.filter((tag) => tag !== tagToRemove))
   }
 
-  const handlePhotoAttachment = () => {
-    const input = document.createElement("input")
-    input.type = "file"
-    input.accept = "image/*"
-    input.onchange = (e) => {
-      const file = e.target.files[0]
-      if (file) {
-        alert(`Photo "${file.name}" would be attached to this entry`)
-      }
-    }
-    input.click()
-  }
+ 
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#F2C3B9] via-[#F0DDD6] to-[#D6CBBF]">
@@ -166,10 +155,7 @@ const JournalEntryForm = ({ mood, onSave, onCancel, editEntry = null }) => {
       {/* Bottom Toolbar */}
       <div className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-sm border-t border-[#97B3AE]/20">
         <div className="flex items-center justify-center py-4 space-x-6">
-          {/* Photo Attachment Functionality */}
-          <Button variant="ghost" size="icon" className="text-[#97B3AE]" onClick={handlePhotoAttachment}>
-            <span className="text-xl">📷</span>
-          </Button>
+         
           {/* Favorite Toggle Functionality */}
           <Button
             variant="ghost"
