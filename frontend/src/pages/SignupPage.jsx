@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Button } from "../components/ui/button.jsx"
+import { Button } from "../components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 import { Input } from "../components/ui/input"
 import { Label } from "../components/ui/label"
@@ -18,8 +18,6 @@ export default function SignupPage() {
     email: "",
     password: "",
     confirmPassword: "",
-    agreeToTerms: false,
-    subscribeNewsletter: false,
   })
 
   const handleInputChange = (e) => {
@@ -39,15 +37,17 @@ export default function SignupPage() {
       return
     }
 
-   
-
     // Handle signup logic here
-    console.log("Signup attempt:", formData)
+    console.log("[v0] Signup attempt:", formData)
+    // Redirect to login page after successful signup
+    window.location.href = "/login"
   }
 
   const handleGoogleSignup = () => {
-    // Handle Google OAuth signup
-    console.log("Google signup clicked")
+    console.log("[v0] Google signup clicked")
+    // In a real app, you would integrate with Google OAuth
+    // For now, redirect to home page to simulate successful signup
+    window.location.href = "/"
   }
 
   return (
@@ -183,8 +183,6 @@ export default function SignupPage() {
                   </button>
                 </div>
               </div>
-
-              
 
               {/* Sign Up Button */}
               <Button

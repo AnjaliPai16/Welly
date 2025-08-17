@@ -33,7 +33,10 @@ export default function LoginPage() {
 
   const handleGoogleLogin = () => {
     // Handle Google OAuth login
-    console.log("Google login clicked")
+    console.log("[v0] Google login clicked")
+    // In a real app, you would integrate with Google OAuth
+    // For now, redirect to home page to simulate successful login
+    window.location.href = "/"
   }
 
   return (
