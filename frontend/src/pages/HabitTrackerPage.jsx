@@ -156,7 +156,7 @@ const HabitTrackerPage = () => {
       <div
         className="min-h-[calc(100vh-80px)] relative"
         style={{
-          backgroundImage: "url(/habit1.jpg)",
+          backgroundImage: "url(/h1.jpg)",
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",

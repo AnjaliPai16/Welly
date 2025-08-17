@@ -126,22 +126,22 @@ export default function GratitudePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#E6E6FA] via-[#F0E6FF] to-[#DDA0DD]">
-      <nav className="flex items-center justify-between p-6 lg:px-12 backdrop-blur-sm shadow-sm bg-gradient-to-r from-[#DDA0DD] to-[#E6E6FA]">
+      <nav className="flex items-center justify-between p-6 lg:px-12 backdrop-blur-sm shadow-sm bg-[#7e4d8e]">
         <div className="flex items-center space-x-2">
-          <div className="w-8 h-8 bg-gradient-to-br from-[#9370DB] to-[#DDA0DD] rounded-full flex items-center justify-center">
+          <div className="w-8 h-8 bg-[#9370DB]  rounded-full flex items-center justify-center">
             <Sparkles className="w-4 h-4 text-white" />
           </div>
-          <span className="text-2xl font-bold text-[#4B0082]">Welly</span>
+          <span className="text-2xl font-bold text-[#f6f2f8]">Welly</span>
         </div>
 
         <div className="hidden md:flex items-center space-x-8">
-          <Link to="/" className="text-[#4B0082] hover:text-[#6A5ACD] transition-colors">
+          <Link to="/" className="text-[#f4f2f6] hover:text-[#6A5ACD] transition-colors">
             Home
           </Link>
-          <Link to="/journaling" className="text-[#4B0082] hover:text-[#6A5ACD] transition-colors">
+          <Link to="/journaling" className="text-[#f7f5f8] hover:text-[#6A5ACD] transition-colors">
             Journal
           </Link>
-          <Link to="/habits" className="text-[#4B0082] hover:text-[#6A5ACD] transition-colors">
+          <Link to="/habits" className="text-[#f1eef4] hover:text-[#6A5ACD] transition-colors">
             Habits
           </Link>
           <Button className="bg-[#9370DB] hover:bg-[#8A2BE2] text-white border-none">Get Started</Button>
