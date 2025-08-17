@@ -195,7 +195,7 @@ const JournalingPage = () => {
 
       <div
         className="min-h-[calc(100vh-80px)] bg-cover bg-center bg-no-repeat relative"
-        style={{ backgroundImage: "url(journalbg.jpg)" }}
+        style={{ backgroundImage: "url(journal.jpg)" }}
       >
         <div className="absolute inset-0 bg-white/30 backdrop-blur-[0.5px]"></div>
 
