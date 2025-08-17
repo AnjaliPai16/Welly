@@ -11,6 +11,7 @@ import GratitudePage from "./pages/GratitudePage" // Import GratitudePage
 import MemoryLanePage from "./pages/MemoryLanePage"
 import LoginPage from "./pages/LoginPage" // Import LoginPage
 import SignupPage from "./pages/SignupPage" // Import SignupPage
+import CalmingPlaylistPage from "./pages/CalmingPlaylistPage"
 
 // Main component for the landing page content
 function HomePage() {
@@ -207,11 +208,17 @@ function HomePage() {
                       </Link>
                     ) : feature.slug === "memorylane" ? (
                       <Link to={`/memory`}>
-                        <Button variant="ghost" className="text-[#486856] hover:bg-white/20 mt-4">
-                          Explore →
-                        </Button>
-                      </Link>
-                    ) : (
+                      <Button variant="ghost" className="text-[#486856] hover:bg-white/20 mt-4">
+                        Explore →
+                      </Button>
+                    </Link>
+                  ) : feature.slug === "calmingplaylist" ? (
+                    <Link to={`/playlist`}>
+                      <Button variant="ghost" className="text-[#486856] hover:bg-white/20 mt-4">
+                        Explore →
+                      </Button>
+                    </Link>
+                  ) : (
                       <Button variant="ghost" className="text-[#486856] hover:bg-white/20 mt-4" disabled>
                         Coming Soon →
                       </Button>
@@ -291,6 +298,7 @@ export default function App() {
       <Route path="/habits" element={<HabitTrackerPage />} /> {/* Add habit tracker route */}
       <Route path="/gratitude" element={<GratitudePage />} /> {/* Add gratitude route */}
       <Route path="/memory" element={<MemoryLanePage />} /> {/* Add memory route */}
+      <Route path="/playlist" element={<CalmingPlaylistPage />} /> {/* Add music route */}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
     </Routes>
