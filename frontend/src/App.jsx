@@ -9,9 +9,8 @@ import JournalingPage from "./pages/JournalingPage" // Import JournalingPage
 import HabitTrackerPage from "./pages/HabitTrackerPage" // Import HabitTrackerPage
 import GratitudePage from "./pages/GratitudePage" // Import GratitudePage
 import MemoryLanePage from "./pages/MemoryLanePage"
-import CalmingPlaylistPage from "./pages/CalmingPlaylistPage" // Added import for CalmingPlaylistPage
-import { usePlaylist } from "./contexts/PlaylistContext" // Added import for playlist context
-import MusicPlayer from "./components/MusicPlayer" // Added import for persistent music player
+import LoginPage from "./pages/LoginPage" // Import LoginPage
+import SignupPage from "./pages/SignupPage" // Import SignupPage
 
 // Main component for the landing page content
 function HomePage() {
@@ -96,8 +95,9 @@ function HomePage() {
               {/* sage-dark, cream-warm */}
               Contact
             </a>
-            <Button className="bg-[#97B3AE] hover:bg-[#D6CBBF] text-white border-none">Get Started</Button>{" "}
-            {/* sage, cream-warm */}
+            <Link to="/signup">
+              <Button className="bg-[#97B3AE] hover:bg-[#D6CBBF] text-white border-none">Sign Up</Button>
+            </Link>
           </div>
           {/* Mobile Navigation */}
           <Sheet>
@@ -127,8 +127,9 @@ function HomePage() {
                   {/* sage */}
                   Contact
                 </a>
-                <Button className="bg-[#97B3AE] hover:bg-[#D6CBBF] text-white">Get Started</Button>{" "}
-                {/* sage, cream-warm */}
+                <Link to="/signup">
+                  <Button className="bg-[#97B3AE] hover:bg-[#D6CBBF] text-white">Sign Up</Button>
+                </Link>
               </div>
             </SheetContent>
           </Sheet>
@@ -149,11 +150,11 @@ function HomePage() {
               companion for a more peaceful, centered life.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="bg-[#97B3AE] hover:bg-[#D6CBBF] text-white px-8 py-4 text-lg">
-                {" "}
-                {/* sage, cream-warm */}
-                Begin Your Journey
-              </Button>
+              <Link to="/signup">
+                <Button size="lg" className="bg-[#97B3AE] hover:bg-[#D6CBBF] text-white px-8 py-4 text-lg">
+                  Begin Your Journey
+                </Button>
+              </Link>
               <Button
                 size="lg"
                 variant="outline"
@@ -210,12 +211,6 @@ function HomePage() {
                           Explore →
                         </Button>
                       </Link>
-                    ) : feature.slug === "calmingplaylist" ? (
-                      <Link to={`/playlist`}>
-                        <Button variant="ghost" className="text-[#486856] hover:bg-white/20 mt-4">
-                          Explore →
-                        </Button>
-                      </Link>
                     ) : (
                       <Button variant="ghost" className="text-[#486856] hover:bg-white/20 mt-4" disabled>
                         Coming Soon →
@@ -241,11 +236,11 @@ function HomePage() {
                 {/* sage */}
                 Join thousands who have found peace and balance through mindful daily practices
               </p>
-              <Button size="lg" className="bg-[#97B3AE] hover:bg-[#D6CBBF] text-white px-12 py-4 text-lg">
-                {" "}
-                {/* sage, cream-warm */}
-                Get Started Today
-              </Button>
+              <Link to="/signup">
+                <Button size="lg" className="bg-[#97B3AE] hover:bg-[#D6CBBF] text-white px-12 py-4 text-lg">
+                  Get Started Today
+                </Button>
+              </Link>
             </div>
           </div>
         </section>
@@ -288,32 +283,16 @@ function HomePage() {
 }
 
 export default function App() {
-  const { currentTrack, currentPlaylist, currentTrackIndex, playTrack } = usePlaylist()
-
   return (
-    <div className="relative">
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/features/:featureName" element={<FeatureDetailPage />} />
-        <Route path="/journaling" element={<JournalingPage />} />
-        <Route path="/habits" element={<HabitTrackerPage />} />
-        <Route path="/gratitude" element={<GratitudePage />} />
-        <Route path="/memory" element={<MemoryLanePage />} />
-        <Route path="/playlist" element={<CalmingPlaylistPage />} />
-      </Routes>
-
-      {currentTrack && (
-        <div className="fixed bottom-0 left-0 right-0 z-50 p-4 bg-white/95 backdrop-blur-sm border-t border-[#97B3AE]/30 shadow-lg">
-          <div className="max-w-7xl mx-auto">
-            <MusicPlayer
-              currentTrack={currentTrack}
-              playlist={currentPlaylist?.tracks || []}
-              currentIndex={currentTrackIndex}
-              onTrackChange={(track, index) => playTrack(track, currentPlaylist, index)}
-            />
-          </div>
-        </div>
-      )}
-    </div>
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/features/:featureName" element={<FeatureDetailPage />} />
+      <Route path="/journaling" element={<JournalingPage />} /> {/* Add journaling route */}
+      <Route path="/habits" element={<HabitTrackerPage />} /> {/* Add habit tracker route */}
+      <Route path="/gratitude" element={<GratitudePage />} /> {/* Add gratitude route */}
+      <Route path="/memory" element={<MemoryLanePage />} /> {/* Add memory route */}
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/signup" element={<SignupPage />} />
+    </Routes>
   )
 }
