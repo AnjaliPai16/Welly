@@ -4,17 +4,22 @@ const JournalEntry = require('../models/JournalEntry');
 // Create new journal entry
 exports.createJournal = async (req, res) => {
   try {
-    const { title, content, mood, tags, favorite } = req.body;
+    const { title, content, mood, tags, isFavorite } = req.body;
+    console.log('CREATE JOURNAL REQUEST:', { title, content, mood, tags, isFavorite, userId: req.user.id });
+    
     const entry = await JournalEntry.create({
       user: req.user.id, // comes from auth middleware
       title,
       content,
       mood,
       tags,
-      favorite
+      isFavorite
     });
+    
+    console.log('JOURNAL CREATED:', entry);
     res.status(201).json(entry);
   } catch (err) {
+    console.error('JOURNAL CREATE ERROR:', err);
     res.status(400).json({ message: err.message });
   }
 };
@@ -43,10 +48,10 @@ exports.getJournal = async (req, res) => {
 // Update journal
 exports.updateJournal = async (req, res) => {
   try {
-    const { title, content, mood, tags, favorite } = req.body;
+    const { title, content, mood, tags, isFavorite } = req.body;
     const entry = await JournalEntry.findOneAndUpdate(
       { _id: req.params.id, user: req.user.id },
-      { title, content, mood, tags, favorite },
+      { title, content, mood, tags, isFavorite },
       { new: true }
     );
     if (!entry) return res.status(404).json({ message: 'Journal not found' });

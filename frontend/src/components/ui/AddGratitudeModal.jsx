@@ -27,13 +27,19 @@ export default function AddGratitudeModal({ isOpen, onClose, onSave }) {
       }),
     }
 
-    // Save the entry
-    onSave(newEntry)
-
-    // Reset form and close modal
-    setGratitudeText("")
-    setIsSubmitting(false)
-    onClose()
+    try {
+      // Save the entry and wait for response
+      await onSave(newEntry)
+      
+      // Reset form and close modal only after successful save
+      setGratitudeText("")
+      onClose()
+    } catch (error) {
+      console.error('Failed to save gratitude entry:', error)
+      // Don't close modal on error, let user try again
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const handleClose = () => {

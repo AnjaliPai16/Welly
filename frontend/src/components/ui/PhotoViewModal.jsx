@@ -31,7 +31,7 @@ export default function PhotoViewModal({ isOpen, onClose, photos, initialPhotoIn
 
   const handleSaveNote = () => {
     if (onUpdateNote && photos[currentIndex]) {
-      onUpdateNote(photos[currentIndex].id, editedNote)
+      onUpdateNote(photos[currentIndex]._id, editedNote)
     }
     setIsEditingNote(false)
   }
@@ -120,7 +120,7 @@ export default function PhotoViewModal({ isOpen, onClose, photos, initialPhotoIn
         {/* Photo */}
         <div className="flex-1 flex items-center justify-center max-w-4xl max-h-full">
           <img
-            src={currentPhoto.preview || "/placeholder.svg"}
+            src={currentPhoto.thumbnailUrl || currentPhoto.url || "/placeholder.svg"}
             alt={currentPhoto.name || "Memory photo"}
             className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
           />

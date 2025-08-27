@@ -23,25 +23,15 @@ export default function CreateAlbumModal({ isOpen, onClose, onCreateAlbum }) {
 
     const selectedGenreData = albumGenres.find((g) => g.id === selectedGenre)
     const newAlbum = {
-      id: Date.now().toString(),
       name: albumName.trim(),
       description: albumDescription.trim(),
       genre: selectedGenreData.name,
       genreId: selectedGenre,
       color: selectedGenreData.color,
-      icon: selectedGenreData.icon,
-      photoCount: 0,
-      photos: [],
-      createdAt: new Date().toISOString(),
+      icon: selectedGenreData.icon.name
     }
 
     onCreateAlbum(newAlbum)
-
-    // Reset form
-    setAlbumName("")
-    setAlbumDescription("")
-    setSelectedGenre("")
-    onClose()
   }
 
   const handleClose = () => {

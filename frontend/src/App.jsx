@@ -12,9 +12,15 @@ import MemoryLanePage from "./pages/MemoryLanePage"
 import LoginPage from "./pages/LoginPage" // Import LoginPage
 import SignupPage from "./pages/SignupPage" // Import SignupPage
 import CalmingPlaylistPage from "./pages/CalmingPlaylistPage"
+import BreathingMeditationPage from "./pages/BreathingMeditationPage"
+import AboutPage from "./pages/AboutPage"
+import ContactPage from "./pages/ContactPage"
+import ProtectedRoute from "./components/ProtectedRoute" // Import ProtectedRoute
+import { useAuth } from "./contexts/AuthContext" // Import useAuth
 
 // Main component for the landing page content
 function HomePage() {
+  const { isAuthenticated, user, logout } = useAuth()
   const features = [
     {
       icon: BookOpen,
@@ -86,19 +92,31 @@ function HomePage() {
               {/* sage-dark, cream-warm */}
               Features
             </a>
-            <a href="#about" className="text-[#486856] hover:text-[#D6CBBF] transition-colors">
+            <a href="/about" className="text-[#486856] hover:text-[#D6CBBF] transition-colors">
               {" "}
               {/* sage-dark, cream-warm */}
               About
             </a>
-            <a href="#contact" className="text-[#486856] hover:text-[#D6CBBF] transition-colors">
+            <a href="/contact" className="text-[#486856] hover:text-[#D6CBBF] transition-colors">
               {" "}
               {/* sage-dark, cream-warm */}
               Contact
             </a>
-            <Link to="/signup">
-              <Button className="bg-[#97B3AE] hover:bg-[#D6CBBF] text-white border-none">Sign Up</Button>
-            </Link>
+            {isAuthenticated ? (
+              <div className="flex items-center space-x-4">
+                <span className="text-[#486856] text-sm">Welcome, {user?.name?.split(' ')[0] || 'User'}!</span>
+                <Button 
+                  onClick={() => logout()} 
+                  className="bg-[#97B3AE] hover:bg-[#D6CBBF] text-white border-none"
+                >
+                  Logout
+                </Button>
+              </div>
+            ) : (
+              <Link to="/signup">
+                <Button className="bg-[#97B3AE] hover:bg-[#D6CBBF] text-white border-none">Sign Up</Button>
+              </Link>
+            )}
           </div>
           {/* Mobile Navigation */}
           <Sheet>
@@ -128,9 +146,21 @@ function HomePage() {
                   {/* sage */}
                   Contact
                 </a>
-                <Link to="/signup">
-                  <Button className="bg-[#97B3AE] hover:bg-[#D6CBBF] text-white">Sign Up</Button>
-                </Link>
+                {isAuthenticated ? (
+                  <div className="flex flex-col space-y-4">
+                    <span className="text-[#97B3AE] text-lg">Welcome, {user?.name?.split(' ')[0] || 'User'}!</span>
+                    <Button 
+                      onClick={() => logout()} 
+                      className="bg-[#97B3AE] hover:bg-[#D6CBBF] text-white"
+                    >
+                      Logout
+                    </Button>
+                  </div>
+                ) : (
+                  <Link to="/signup">
+                    <Button className="bg-[#97B3AE] hover:bg-[#D6CBBF] text-white">Sign Up</Button>
+                  </Link>
+                )}
               </div>
             </SheetContent>
           </Sheet>
@@ -151,11 +181,19 @@ function HomePage() {
               companion for a more peaceful, centered life.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/signup">
-                <Button size="lg" className="bg-[#97B3AE] hover:bg-[#D6CBBF] text-white px-8 py-4 text-lg">
-                  Begin Your Journey
-                </Button>
-              </Link>
+              {isAuthenticated ? (
+                <Link to="#features">
+                  <Button size="lg" className="bg-[#97B3AE] hover:bg-[#D6CBBF] text-white px-8 py-4 text-lg">
+                    Explore Features
+                  </Button>
+                </Link>
+              ) : (
+                <Link to="/signup">
+                  <Button size="lg" className="bg-[#97B3AE] hover:bg-[#D6CBBF] text-white px-8 py-4 text-lg">
+                    Begin Your Journey
+                  </Button>
+                </Link>
+              )}
               <Button
                 size="lg"
                 variant="outline"
@@ -188,40 +226,66 @@ function HomePage() {
                     <h3 className="text-xl font-semibold text-[#486856]">{feature.title}</h3>
                     <p className="text-[#486856] leading-relaxed">{feature.description}</p>
 
-                    {feature.slug === "journaling" ? (
-                      <Link to={`/journaling`}>
-                        <Button variant="ghost" className="text-[#486856] hover:bg-white/20 mt-4">
-                          Explore →
+                    {isAuthenticated ? (
+                      // Show actual links for authenticated users
+                      feature.slug === "journaling" ? (
+                        <Link to={`/journaling`}>
+                          <Button variant="ghost" className="text-[#486856] hover:bg-white/20 mt-4">
+                            Explore →
+                          </Button>
+                        </Link>
+                      ) : feature.slug === "habittracker" ? (
+                        <Link to={`/habits`}>
+                          <Button variant="ghost" className="text-[#486856] hover:bg-white/20 mt-4">
+                            Explore →
+                          </Button>
+                        </Link>
+                      ) : feature.slug === "gratitudecheck" ? (
+                        <Link to={`/gratitude`}>
+                          <Button variant="ghost" className="text-[#486856] hover:bg-white/20 mt-4">
+                            Explore →
+                          </Button>
+                        </Link>
+                      ) : feature.slug === "memorylane" ? (
+                        <Link to={`/memory`}>
+                          <Button variant="ghost" className="text-[#486856] hover:bg-white/20 mt-4">
+                            Explore →
+                          </Button>
+                        </Link>
+                      ) : feature.slug === "calmingplaylist" ? (
+                        <Link to={`/playlist`}>
+                          <Button variant="ghost" className="text-[#486856] hover:bg-white/20 mt-4">
+                            Explore →
+                          </Button>
+                        </Link>
+                      ) : feature.slug === "breathingmeditation" ? (
+                        <Link to={'/breathing'}>
+                          <Button variant="ghost" className="text-[#486856] hover:bg-white/20 mt-4">
+                            Explore →
+                          </Button>
+                        </Link>
+                      ): (
+                        <Button variant="ghost" className="text-[#486856] hover:bg-white/20 mt-4" disabled>
+                          Coming Soon →
                         </Button>
-                      </Link>
-                    ) : feature.slug === "habittracker" ? (
-                      <Link to={`/habits`}>
-                        <Button variant="ghost" className="text-[#486856] hover:bg-white/20 mt-4">
-                          Explore →
-                        </Button>
-                      </Link>
-                    ) : feature.slug === "gratitudecheck" ? (
-                      <Link to={`/gratitude`}>
-                        <Button variant="ghost" className="text-[#486856] hover:bg-white/20 mt-4">
-                          Explore →
-                        </Button>
-                      </Link>
-                    ) : feature.slug === "memorylane" ? (
-                      <Link to={`/memory`}>
-                      <Button variant="ghost" className="text-[#486856] hover:bg-white/20 mt-4">
-                        Explore →
-                      </Button>
-                    </Link>
-                  ) : feature.slug === "calmingplaylist" ? (
-                    <Link to={`/playlist`}>
-                      <Button variant="ghost" className="text-[#486856] hover:bg-white/20 mt-4">
-                        Explore →
-                      </Button>
-                    </Link>
-                  ) : (
-                      <Button variant="ghost" className="text-[#486856] hover:bg-white/20 mt-4" disabled>
-                        Coming Soon →
-                      </Button>
+                      )
+                    ) : (
+                      // Show login/signup prompts for unauthenticated users
+                      <div className="flex flex-col space-y-2 mt-4">
+                        <p className="text-sm text-[#486856] opacity-75">Sign in to access this feature</p>
+                        <div className="flex space-x-2">
+                          <Link to="/login">
+                            <Button size="sm" variant="ghost" className="text-[#486856] hover:bg-white/20">
+                              Login
+                            </Button>
+                          </Link>
+                          <Link to="/signup">
+                            <Button size="sm" variant="ghost" className="text-[#486856] hover:bg-white/20">
+                              Sign Up
+                            </Button>
+                          </Link>
+                        </div>
+                      </div>
                     )}
                   </CardContent>
                 </Card>
@@ -243,11 +307,19 @@ function HomePage() {
                 {/* sage */}
                 Join thousands who have found peace and balance through mindful daily practices
               </p>
-              <Link to="/signup">
-                <Button size="lg" className="bg-[#97B3AE] hover:bg-[#D6CBBF] text-white px-12 py-4 text-lg">
-                  Get Started Today
-                </Button>
-              </Link>
+              {isAuthenticated ? (
+                <Link to="#features">
+                  <Button size="lg" className="bg-[#97B3AE] hover:bg-[#D6CBBF] text-white px-12 py-4 text-lg">
+                    Explore Features
+                  </Button>
+                </Link>
+              ) : (
+                <Link to="/signup">
+                  <Button size="lg" className="bg-[#97B3AE] hover:bg-[#D6CBBF] text-white px-12 py-4 text-lg">
+                    Get Started Today
+                  </Button>
+                </Link>
+              )}
             </div>
           </div>
         </section>
@@ -294,13 +366,40 @@ export default function App() {
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/features/:featureName" element={<FeatureDetailPage />} />
-      <Route path="/journaling" element={<JournalingPage />} /> {/* Add journaling route */}
-      <Route path="/habits" element={<HabitTrackerPage />} /> {/* Add habit tracker route */}
-      <Route path="/gratitude" element={<GratitudePage />} /> {/* Add gratitude route */}
-      <Route path="/memory" element={<MemoryLanePage />} /> {/* Add memory route */}
-      <Route path="/playlist" element={<CalmingPlaylistPage />} /> {/* Add music route */}
+      <Route path="/journaling" element={
+        <ProtectedRoute>
+          <JournalingPage />
+        </ProtectedRoute>
+      } />
+      <Route path="/habits" element={
+        <ProtectedRoute>
+          <HabitTrackerPage />
+        </ProtectedRoute>
+      } />
+      <Route path="/gratitude" element={
+        <ProtectedRoute>
+          <GratitudePage />
+        </ProtectedRoute>
+      } />
+      <Route path="/memory" element={
+        <ProtectedRoute>
+          <MemoryLanePage />
+        </ProtectedRoute>
+      } />
+      <Route path="/playlist" element={
+        <ProtectedRoute>
+          <CalmingPlaylistPage />
+        </ProtectedRoute>
+      } />
+      <Route path="/breathing" element={
+        <ProtectedRoute>
+          <BreathingMeditationPage />
+        </ProtectedRoute>
+      } />
+      <Route path="/about" element={<AboutPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
+      <Route path="/contact" element={<ContactPage />} />
     </Routes>
   )
 }

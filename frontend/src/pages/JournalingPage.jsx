@@ -1,5 +1,4 @@
 "use client"
-
 import { useState, useEffect } from "react"
 import { Button } from "../components/ui/button"
 import { Card, CardContent } from "../components/ui/card"
@@ -8,6 +7,7 @@ import { Sheet, SheetContent, SheetTrigger } from "../components/ui/sheet"
 import { Link } from "react-router-dom"
 import MoodSelector from "../components/ui/MoodSelector.jsx"
 import JournalEntryForm from "../components/ui/JournalEntryForm.jsx"
+import { journalAPI } from "../services/api"
 
 const JournalingPage = () => {
   const [entries, setEntries] = useState([])
@@ -19,17 +19,34 @@ const JournalingPage = () => {
   const [showCalendarView, setShowCalendarView] = useState(false)
   const [showStats, setShowStats] = useState(false)
   const [editingEntry, setEditingEntry] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
 
+  // Load journal entries from backend
   useEffect(() => {
-    const savedEntries = localStorage.getItem("journalEntries")
-    if (savedEntries) {
-      setEntries(JSON.parse(savedEntries))
-    }
+    loadEntries()
   }, [])
 
-  useEffect(() => {
-    localStorage.setItem("journalEntries", JSON.stringify(entries))
-  }, [entries])
+  const loadEntries = async () => {
+    setLoading(true)
+    setError("")
+    try {
+      const response = await journalAPI.getEntries()
+      // Backend returns array directly, not wrapped in success property
+      if (Array.isArray(response)) {
+        // Sort entries by date (newest first)
+        const sortedEntries = response.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        setEntries(sortedEntries)
+      } else {
+        setError('Invalid response format from server')
+      }
+    } catch (error) {
+      setError(error.message || 'Failed to load journal entries')
+      console.error('Error loading entries:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleNewEntry = () => {
     setShowMoodSelector(true)
@@ -41,23 +58,50 @@ const JournalingPage = () => {
     setShowEntryForm(true)
   }
 
-  const handleSaveEntry = (entryData) => {
-    if (editingEntry) {
-      setEntries((prev) => prev.map((entry) => (entry.id === entryData.id ? { ...entry, ...entryData } : entry)))
-      setEditingEntry(null)
-    } else {
-      const newEntry = {
-        id: Date.now(),
-        ...entryData,
-        mood: selectedMood,
-        date: new Date().toISOString(),
-        status: "saved",
+  const handleSaveEntry = async (entryData) => {
+    console.log('handleSaveEntry called with:', entryData)
+    setLoading(true)
+    setError("")
+    
+    try {
+      const dataToSave = {
+        title: entryData.title || "",
+        content: entryData.content || "",
+        mood: editingEntry ? entryData.mood : selectedMood,
+        tags: Array.isArray(entryData.tags) ? entryData.tags : [],
+        isFavorite: entryData.isFavorite || false
       }
-      setEntries((prev) => [newEntry, ...prev])
-    }
 
-    setShowEntryForm(false)
-    setSelectedMood(null)
+      console.log('Data to save:', dataToSave)
+
+      let response
+      if (editingEntry) {
+        console.log('Updating existing entry:', editingEntry._id)
+        response = await journalAPI.updateEntry(editingEntry._id, dataToSave)
+      } else {
+        console.log('Creating new entry')
+        response = await journalAPI.createEntry(dataToSave)
+      }
+
+      console.log('API response:', response)
+
+      // Backend returns the created/updated entry directly, not wrapped in success property
+      if (response && response._id) {
+        console.log('Entry saved successfully!')
+        setShowEntryForm(false)
+        setSelectedMood(null)
+        setEditingEntry(null)
+        loadEntries() // Reload entries from backend
+      } else {
+        console.log('Invalid response format:', response)
+        setError('Invalid response from server')
+      }
+    } catch (error) {
+      console.error('Error saving entry:', error)
+      setError(error.message || 'Failed to save journal entry')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleCancelEntry = () => {
@@ -89,8 +133,39 @@ const JournalingPage = () => {
     setShowEntryForm(true)
   }
 
-  const handleDeleteEntry = (entryId) => {
-    setEntries((prev) => prev.filter((entry) => entry.id !== entryId))
+  const handleDeleteEntry = async (entryId) => {
+    if (!window.confirm('Are you sure you want to delete this journal entry? This action cannot be undone.')) {
+      return
+    }
+
+    try {
+      const response = await journalAPI.deleteEntry(entryId)
+      // Backend returns success message directly
+      if (response && response.message) {
+        loadEntries() // Reload entries from backend
+        if (selectedEntry && selectedEntry._id === entryId) {
+          handleCloseEntryViewer()
+        }
+      }
+    } catch (error) {
+      setError(error.message || 'Failed to delete journal entry')
+      console.error('Error deleting entry:', error)
+    }
+  }
+
+  const handleToggleFavorite = async (entry) => {
+    try {
+      const response = await journalAPI.updateEntry(entry._id, {
+        isFavorite: !entry.isFavorite
+      })
+      // Backend returns updated entry directly
+      if (response && response._id) {
+        loadEntries() // Reload entries from backend
+      }
+    } catch (error) {
+      setError(error.message || 'Failed to update journal entry')
+      console.error('Error updating favorite status:', error)
+    }
   }
 
   const formatDate = (dateString) => {
@@ -122,17 +197,17 @@ const JournalingPage = () => {
       acc[entry.mood] = (acc[entry.mood] || 0) + 1
       return acc
     }, {})
-    const mostCommonMood = Object.keys(moodCounts).reduce(
-      (a, b) => (moodCounts[a] > moodCounts[b] ? a : b),
-      Object.keys(moodCounts)[0],
-    )
+    
+    const mostCommonMood = Object.keys(moodCounts).length > 0 
+      ? Object.keys(moodCounts).reduce((a, b) => (moodCounts[a] > moodCounts[b] ? a : b))
+      : null
+
     return { totalEntries, moodCounts, mostCommonMood }
   }
 
   return (
     <div className="min-h-screen">
-<nav className="flex items-center justify-between p-6 lg:px-12 shadow-sm bg-[#F2C3B9]">
-
+      <nav className="flex items-center justify-between p-6 lg:px-12 shadow-sm bg-[#F2C3B9]">
         <div className="flex items-center space-x-2">
           <div className="w-8 h-8 bg-gradient-to-br from-[#486856] to-[#97B3AE] rounded-full flex items-center justify-center">
             <Sparkles className="w-4 h-4 text-white" />
@@ -161,6 +236,7 @@ const JournalingPage = () => {
           </Link>
           <Button className="bg-[#486856] hover:bg-[#97B3AE] text-white border-none">Get Started</Button>
         </div>
+
         <Sheet>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon" className="md:hidden text-[#486856]">
@@ -198,16 +274,25 @@ const JournalingPage = () => {
         style={{ backgroundImage: "url(journal.jpg)" }}
       >
         <div className="absolute inset-0 bg-white/30 backdrop-blur-[0.5px]"></div>
-
         <div className="relative z-10">
-          
-
           <div className="px-4 mb-4">
             <h2 className="text-2xl font-light text-[#486856]">{new Date().getFullYear()}</h2>
           </div>
 
+          {/* Error Display */}
+          {error && (
+            <div className="mx-4 mb-4 p-4 bg-red-100 border border-red-300 text-red-700 rounded-lg">
+              {error}
+            </div>
+          )}
+
           <div className="px-4 space-y-4 pb-24">
-            {entries.length === 0 ? (
+            {loading ? (
+              <div className="text-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#97B3AE] mx-auto"></div>
+                <p className="text-[#486856] mt-4">Loading journal entries...</p>
+              </div>
+            ) : entries.length === 0 ? (
               <div className="text-center py-12">
                 <FileText className="w-16 h-16 text-[#97B3AE] mx-auto mb-4 opacity-50" />
                 <p className="text-[#97B3AE] text-lg">No entries yet</p>
@@ -215,10 +300,10 @@ const JournalingPage = () => {
               </div>
             ) : (
               entries.map((entry) => {
-                const { day, month } = formatDate(entry.date)
+                const { day, month } = formatDate(entry.createdAt || entry.date)
                 return (
                   <Card
-                    key={entry.id}
+                    key={entry._id}
                     className="bg-white/70 backdrop-blur-sm border-none shadow-md cursor-pointer hover:bg-white/80 transition-colors"
                     onClick={() => handleOpenEntry(entry)}
                   >
@@ -231,7 +316,10 @@ const JournalingPage = () => {
                           </div>
                           <div className="flex items-center space-x-2">
                             <FileText className="w-4 h-4 text-[#97B3AE]" />
-                            <span className="text-sm text-[#97B3AE]">{entry.status}</span>
+                            <span className="text-sm text-[#97B3AE]">saved</span>
+                            {entry.isFavorite && (
+                              <span className="text-yellow-500 text-sm">⭐</span>
+                            )}
                           </div>
                         </div>
                         <div className="text-2xl">{getMoodEmoji(entry.mood)}</div>
@@ -244,6 +332,21 @@ const JournalingPage = () => {
                       {entry.content && (
                         <div className="mt-1">
                           <p className="text-[#97B3AE] text-xs line-clamp-2">{entry.content}</p>
+                        </div>
+                      )}
+                      {entry.tags && entry.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {entry.tags.slice(0, 3).map((tag, index) => (
+                            <span
+                              key={index}
+                              className="bg-[#97B3AE]/20 text-[#486856] px-2 py-1 rounded-full text-xs"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                          {entry.tags.length > 3 && (
+                            <span className="text-[#97B3AE] text-xs">+{entry.tags.length - 3} more</span>
+                          )}
                         </div>
                       )}
                     </CardContent>
@@ -269,6 +372,7 @@ const JournalingPage = () => {
             <Button
               onClick={handleNewEntry}
               className="bg-[#F2C3B9] hover:bg-[#F2C3B9]/80 text-white rounded-full w-16 h-16 shadow-lg"
+              disabled={loading}
             >
               <Plus className="w-8 h-8" />
             </Button>
@@ -295,6 +399,7 @@ const JournalingPage = () => {
             onSave={handleSaveEntry}
             onCancel={handleCancelEntry}
             editEntry={editingEntry}
+            loading={loading}
           />
         </div>
       )}
@@ -308,9 +413,11 @@ const JournalingPage = () => {
                   <div className="flex items-center space-x-3">
                     <div className="text-2xl">{getMoodEmoji(selectedEntry.mood)}</div>
                     <div>
-                      <h2 className="text-xl font-semibold text-[#486856]">{selectedEntry.title || "Journal Entry"}</h2>
+                      <h2 className="text-xl font-semibold text-[#486856]">
+                        {selectedEntry.title || "Journal Entry"}
+                      </h2>
                       <p className="text-sm text-[#97B3AE]">
-                        {new Date(selectedEntry.date).toLocaleDateString("en-US", {
+                        {new Date(selectedEntry.createdAt || selectedEntry.date).toLocaleDateString("en-US", {
                           weekday: "long",
                           year: "numeric",
                           month: "long",
@@ -320,6 +427,15 @@ const JournalingPage = () => {
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleToggleFavorite(selectedEntry)}
+                      className="text-[#97B3AE] hover:text-yellow-500"
+                      title={selectedEntry.isFavorite ? "Remove from favorites" : "Add to favorites"}
+                    >
+                      {selectedEntry.isFavorite ? "⭐" : "☆"}
+                    </Button>
                     <Button
                       variant="ghost"
                       size="icon"
@@ -335,16 +451,7 @@ const JournalingPage = () => {
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => {
-                        if (
-                          window.confirm(
-                            "Are you sure you want to delete this journal entry? This action cannot be undone.",
-                          )
-                        ) {
-                          handleDeleteEntry(selectedEntry.id)
-                          handleCloseEntryViewer()
-                        }
-                      }}
+                      onClick={() => handleDeleteEntry(selectedEntry._id)}
                       className="text-[#97B3AE] hover:text-red-500"
                       title="Delete entry"
                     >
@@ -368,7 +475,10 @@ const JournalingPage = () => {
                     {selectedEntry.tags?.length > 0 && (
                       <div className="flex flex-wrap gap-1">
                         {selectedEntry.tags.map((tag, index) => (
-                          <span key={index} className="bg-[#97B3AE]/20 text-[#486856] px-2 py-1 rounded-full text-xs">
+                          <span
+                            key={index}
+                            className="bg-[#97B3AE]/20 text-[#486856] px-2 py-1 rounded-full text-xs"
+                          >
                             {tag}
                           </span>
                         ))}
@@ -410,10 +520,19 @@ const JournalingPage = () => {
                     <p className="text-[#97B3AE] text-center">No entries to display</p>
                   ) : (
                     entries.slice(0, 10).map((entry) => (
-                      <div key={entry.id} className="flex items-center justify-between p-2 bg-[#F0DDD6]/30 rounded">
+                      <div
+                        key={entry._id}
+                        className="flex items-center justify-between p-2 bg-[#F0DDD6]/30 rounded cursor-pointer hover:bg-[#F0DDD6]/50"
+                        onClick={() => {
+                          setShowCalendarView(false)
+                          handleOpenEntry(entry)
+                        }}
+                      >
                         <div className="flex items-center space-x-2">
                           <span className="text-lg">{getMoodEmoji(entry.mood)}</span>
-                          <span className="text-sm text-[#486856]">{new Date(entry.date).toLocaleDateString()}</span>
+                          <span className="text-sm text-[#486856]">
+                            {new Date(entry.createdAt || entry.date).toLocaleDateString()}
+                          </span>
                         </div>
                         <span className="text-xs text-[#97B3AE]">{entry.title || "Untitled"}</span>
                       </div>
@@ -452,17 +571,19 @@ const JournalingPage = () => {
                       <div className="text-3xl font-bold text-[#486856]">{getEntryStats().totalEntries}</div>
                       <div className="text-sm text-[#97B3AE]">Total Entries</div>
                     </div>
-                    <div className="text-center">
-                      <div className="text-2xl">{getMoodEmoji(getEntryStats().mostCommonMood)}</div>
-                      <div className="text-sm text-[#97B3AE]">Most Common Mood</div>
-                    </div>
+                    {getEntryStats().mostCommonMood && (
+                      <div className="text-center">
+                        <div className="text-2xl">{getMoodEmoji(getEntryStats().mostCommonMood)}</div>
+                        <div className="text-sm text-[#97B3AE]">Most Common Mood</div>
+                      </div>
+                    )}
                     <div className="space-y-2">
                       <h3 className="text-sm font-medium text-[#486856]">Mood Distribution:</h3>
                       {Object.entries(getEntryStats().moodCounts).map(([mood, count]) => (
                         <div key={mood} className="flex items-center justify-between text-sm">
                           <span className="flex items-center space-x-2">
                             <span>{getMoodEmoji(mood)}</span>
-                            <span className="text-[#486856] capitalize">{mood}</span>
+                            <span className="text-[#486856] capitalize">{mood.replace('-', ' ')}</span>
                           </span>
                           <span className="text-[#97B3AE]">{count}</span>
                         </div>

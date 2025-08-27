@@ -11,38 +11,52 @@ import { Plus, Play, MoreVertical, Edit, Trash2, Music, Calendar } from "lucide-
 import { usePlaylist } from "../contexts/PlaylistContext"
 
 export default function PlaylistManager({ onPlaylistSelect }) {
-  const { playlists, createPlaylist, deletePlaylist, updatePlaylist, playPlaylist } = usePlaylist()
+  const { playlists, createPlaylist, deletePlaylist, updatePlaylist, playPlaylist, error, clearError } = usePlaylist()
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [editingPlaylist, setEditingPlaylist] = useState(null)
   const [newPlaylistName, setNewPlaylistName] = useState("")
   const [newPlaylistDescription, setNewPlaylistDescription] = useState("")
+  const [creating, setCreating] = useState(false)
+  const [updating, setUpdating] = useState(false)
 
-  const handleCreatePlaylist = () => {
+  const handleCreatePlaylist = async () => {
     if (newPlaylistName.trim()) {
-      createPlaylist(newPlaylistName.trim(), newPlaylistDescription.trim())
-      setNewPlaylistName("")
-      setNewPlaylistDescription("")
-      setIsCreateDialogOpen(false)
+      setCreating(true)
+      try {
+        const result = await createPlaylist(newPlaylistName.trim(), newPlaylistDescription.trim())
+        if (result) {
+          setNewPlaylistName("")
+          setNewPlaylistDescription("")
+          setIsCreateDialogOpen(false)
+        }
+      } finally {
+        setCreating(false)
+      }
     }
   }
 
-  const handleEditPlaylist = () => {
+  const handleEditPlaylist = async () => {
     if (editingPlaylist && newPlaylistName.trim()) {
-      updatePlaylist(editingPlaylist.id, {
-        name: newPlaylistName.trim(),
-        description: newPlaylistDescription.trim(),
-      })
-      setEditingPlaylist(null)
-      setNewPlaylistName("")
-      setNewPlaylistDescription("")
-      setIsEditDialogOpen(false)
+      setUpdating(true)
+      try {
+        await updatePlaylist(editingPlaylist._id, {
+          name: newPlaylistName.trim(),
+          description: newPlaylistDescription.trim(),
+        })
+        setEditingPlaylist(null)
+        setNewPlaylistName("")
+        setNewPlaylistDescription("")
+        setIsEditDialogOpen(false)
+      } finally {
+        setUpdating(false)
+      }
     }
   }
 
-  const handleDeletePlaylist = (playlist) => {
+  const handleDeletePlaylist = async (playlist) => {
     if (window.confirm(`Are you sure you want to delete "${playlist.name}"?`)) {
-      deletePlaylist(playlist.id)
+      await deletePlaylist(playlist._id)
     }
   }
 
@@ -63,6 +77,19 @@ export default function PlaylistManager({ onPlaylistSelect }) {
 
   return (
     <div className="space-y-6">
+      {/* Error Display */}
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+          {error}
+          <button 
+            onClick={clearError}
+            className="float-right font-bold text-red-700 hover:text-red-900"
+          >
+            ×
+          </button>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-semibold text-[#486856] flex items-center">
@@ -102,11 +129,26 @@ export default function PlaylistManager({ onPlaylistSelect }) {
                 />
               </div>
               <div className="flex justify-end space-x-2">
-                <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setIsCreateDialogOpen(false)}
+                  disabled={creating}
+                >
                   Cancel
                 </Button>
-                <Button onClick={handleCreatePlaylist} className="bg-[#97B3AE] hover:bg-[#486856] text-white">
-                  Create Playlist
+                <Button 
+                  onClick={handleCreatePlaylist} 
+                  className="bg-[#97B3AE] hover:bg-[#486856] text-white"
+                  disabled={!newPlaylistName.trim() || creating}
+                >
+                  {creating ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Creating...
+                    </>
+                  ) : (
+                    'Create Playlist'
+                  )}
                 </Button>
               </div>
             </div>
@@ -131,7 +173,7 @@ export default function PlaylistManager({ onPlaylistSelect }) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {playlists.map((playlist) => (
             <Card
-              key={playlist.id}
+              key={playlist._id}
               className="bg-white/80 backdrop-blur-sm border-[#97B3AE]/30 hover:shadow-lg transition-all group cursor-pointer"
               onClick={() => onPlaylistSelect?.(playlist)}
             >
@@ -183,7 +225,7 @@ export default function PlaylistManager({ onPlaylistSelect }) {
                   <div className="text-sm text-[#6B8E7A]">
                     <div className="flex items-center mb-1">
                       <Music className="w-4 h-4 mr-1" />
-                      {playlist.tracks.length} tracks
+                      {playlist.tracks?.length || 0} tracks
                     </div>
                     <div className="flex items-center">
                       <Calendar className="w-4 h-4 mr-1" />
@@ -196,7 +238,7 @@ export default function PlaylistManager({ onPlaylistSelect }) {
                       e.stopPropagation()
                       playPlaylist(playlist)
                     }}
-                    disabled={playlist.tracks.length === 0}
+                    disabled={!playlist.tracks || playlist.tracks.length === 0}
                     className="bg-[#97B3AE] hover:bg-[#486856] text-white"
                   >
                     <Play className="w-4 h-4" />
@@ -235,11 +277,26 @@ export default function PlaylistManager({ onPlaylistSelect }) {
               />
             </div>
             <div className="flex justify-end space-x-2">
-              <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+              <Button 
+                variant="outline" 
+                onClick={() => setIsEditDialogOpen(false)}
+                disabled={updating}
+              >
                 Cancel
               </Button>
-              <Button onClick={handleEditPlaylist} className="bg-[#97B3AE] hover:bg-[#486856] text-white">
-                Save Changes
+              <Button 
+                onClick={handleEditPlaylist} 
+                className="bg-[#97B3AE] hover:bg-[#486856] text-white"
+                disabled={!newPlaylistName.trim() || updating}
+              >
+                {updating ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Saving...
+                  </>
+                ) : (
+                  'Save Changes'
+                )}
               </Button>
             </div>
           </div>

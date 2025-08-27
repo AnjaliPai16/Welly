@@ -1,6 +1,7 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect } from "react"
+import { playlistAPI } from "../services/api"
 
 const PlaylistContext = createContext()
 
@@ -17,117 +18,150 @@ export const PlaylistProvider = ({ children }) => {
   const [currentPlaylist, setCurrentPlaylist] = useState(null)
   const [currentTrack, setCurrentTrack] = useState(null)
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
 
-  // Load playlists from localStorage on mount
+  // Load playlists from API on mount
   useEffect(() => {
-    const savedPlaylists = localStorage.getItem("welly-playlists")
-    if (savedPlaylists) {
-      try {
-        const parsedPlaylists = JSON.parse(savedPlaylists)
-        setPlaylists(parsedPlaylists)
-      } catch (error) {
-        console.error("Error loading playlists:", error)
-      }
-    }
+    loadPlaylists()
   }, [])
 
-  // Save playlists to localStorage whenever playlists change
-  useEffect(() => {
-    localStorage.setItem("welly-playlists", JSON.stringify(playlists))
-  }, [playlists])
-
-  const createPlaylist = (name, description = "") => {
-    const newPlaylist = {
-      id: Date.now().toString(),
-      name,
-      description,
-      tracks: [],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    }
-
-    setPlaylists((prev) => [...prev, newPlaylist])
-    return newPlaylist
-  }
-
-  const deletePlaylist = (playlistId) => {
-    setPlaylists((prev) => prev.filter((playlist) => playlist.id !== playlistId))
-
-    // If the deleted playlist was current, clear it
-    if (currentPlaylist?.id === playlistId) {
-      setCurrentPlaylist(null)
-      setCurrentTrack(null)
-      setCurrentTrackIndex(0)
+  const loadPlaylists = async () => {
+    try {
+      setLoading(true)
+      setError("")
+      const response = await playlistAPI.getUserPlaylists()
+      if (response.success) {
+        setPlaylists(response.data) // Fixed: changed from response.playlists to response.data
+      } else {
+        setError(response.message || 'Failed to load playlists')
+      }
+    } catch (error) {
+      setError(error.message || 'Failed to load playlists')
+    } finally {
+      setLoading(false)
     }
   }
 
-  const updatePlaylist = (playlistId, updates) => {
-    setPlaylists((prev) =>
-      prev.map((playlist) =>
-        playlist.id === playlistId ? { ...playlist, ...updates, updatedAt: new Date().toISOString() } : playlist,
-      ),
-    )
+  const createPlaylist = async (name, description = "") => {
+    try {
+      setError("")
+      const response = await playlistAPI.createPlaylist({
+        name,
+        description,
+        isPublic: false
+      })
 
-    // Update current playlist if it's the one being updated
-    if (currentPlaylist?.id === playlistId) {
-      setCurrentPlaylist((prev) => ({ ...prev, ...updates, updatedAt: new Date().toISOString() }))
+      if (response.success) {
+        await loadPlaylists() // Reload playlists to get the new one
+        return response.data // Fixed: changed from response.playlist to response.data
+      } else {
+        setError(response.message || 'Failed to create playlist')
+        return null
+      }
+    } catch (error) {
+      setError(error.message || 'Failed to create playlist')
+      return null
     }
   }
 
-  const addTrackToPlaylist = (playlistId, track) => {
-    setPlaylists((prev) =>
-      prev.map((playlist) => {
-        if (playlist.id === playlistId) {
-          // Check if track already exists in playlist
-          const trackExists = playlist.tracks.some((t) => t.id === track.id)
-          if (trackExists) {
-            return playlist
-          }
-
-          const updatedPlaylist = {
-            ...playlist,
-            tracks: [...playlist.tracks, track],
-            updatedAt: new Date().toISOString(),
-          }
-
-          // Update current playlist if it's the one being updated
-          if (currentPlaylist?.id === playlistId) {
-            setCurrentPlaylist(updatedPlaylist)
-          }
-
-          return updatedPlaylist
+  const deletePlaylist = async (playlistId) => {
+    try {
+      setError("")
+      const response = await playlistAPI.deletePlaylist(playlistId)
+      
+      if (response.success) {
+        // If the deleted playlist was current, clear it
+        if (currentPlaylist?._id === playlistId) {
+          setCurrentPlaylist(null)
+          setCurrentTrack(null)
+          setCurrentTrackIndex(0)
         }
-        return playlist
-      }),
-    )
+        await loadPlaylists() // Reload playlists
+      } else {
+        setError(response.message || 'Failed to delete playlist')
+      }
+    } catch (error) {
+      setError(error.message || 'Failed to delete playlist')
+    }
   }
 
-  const removeTrackFromPlaylist = (playlistId, trackId) => {
-    setPlaylists((prev) =>
-      prev.map((playlist) => {
-        if (playlist.id === playlistId) {
-          const updatedPlaylist = {
-            ...playlist,
-            tracks: playlist.tracks.filter((track) => track.id !== trackId),
-            updatedAt: new Date().toISOString(),
-          }
-
-          // Update current playlist if it's the one being updated
-          if (currentPlaylist?.id === playlistId) {
-            setCurrentPlaylist(updatedPlaylist)
-
-            // If the removed track was currently playing, stop playback
-            if (currentTrack?.id === trackId) {
-              setCurrentTrack(null)
-              setCurrentTrackIndex(0)
-            }
-          }
-
-          return updatedPlaylist
+  const updatePlaylist = async (playlistId, updates) => {
+    try {
+      setError("")
+      const response = await playlistAPI.updatePlaylist(playlistId, updates)
+      
+      if (response.success) {
+        // Update current playlist if it's the one being updated
+        if (currentPlaylist?._id === playlistId) {
+          setCurrentPlaylist((prev) => ({ ...prev, ...updates }))
         }
-        return playlist
-      }),
-    )
+        await loadPlaylists() // Reload playlists
+      } else {
+        setError(response.message || 'Failed to update playlist')
+      }
+    } catch (error) {
+      setError(error.message || 'Failed to update playlist')
+    }
+  }
+
+  const addTrackToPlaylist = async (playlistId, track) => {
+    try {
+      setError("")
+      const response = await playlistAPI.addTrackToPlaylist(playlistId, {
+        title: track.name,
+        artist: track.artist_name,
+        artist_name: track.artist_name,
+        url: track.audio,
+        thumbnail: track.image,
+        duration: track.duration,
+        externalId: track.id,
+        source: 'jamendo'
+      })
+
+      if (response.success) {
+        // Update current playlist if it's the one being updated
+        if (currentPlaylist?._id === playlistId) {
+          setCurrentPlaylist(prev => ({
+            ...prev,
+            tracks: [...prev.tracks, response.data] // Fixed: changed from response.track to response.data
+          }))
+        }
+        await loadPlaylists() // Reload playlists
+      } else {
+        setError(response.message || 'Failed to add track to playlist')
+      }
+    } catch (error) {
+      setError(error.message || 'Failed to add track to playlist')
+    }
+  }
+
+  const removeTrackFromPlaylist = async (playlistId, trackId) => {
+    try {
+      setError("")
+      const response = await playlistAPI.removeTrackFromPlaylist(playlistId, trackId)
+      
+      if (response.success) {
+        // Update current playlist if it's the one being updated
+        if (currentPlaylist?._id === playlistId) {
+          setCurrentPlaylist(prev => ({
+            ...prev,
+            tracks: prev.tracks.filter(track => track._id !== trackId)
+          }))
+
+          // If the removed track was currently playing, stop playback
+          if (currentTrack?._id === trackId) {
+            setCurrentTrack(null)
+            setCurrentTrackIndex(0)
+          }
+        }
+        await loadPlaylists() // Reload playlists
+      } else {
+        setError(response.message || 'Failed to remove track from playlist')
+      }
+    } catch (error) {
+      setError(error.message || 'Failed to remove track from playlist')
+    }
   }
 
   const playPlaylist = (playlist, startIndex = 0) => {
@@ -163,7 +197,11 @@ export const PlaylistProvider = ({ children }) => {
   }
 
   const getPlaylistById = (playlistId) => {
-    return playlists.find((playlist) => playlist.id === playlistId)
+    return playlists.find((playlist) => playlist._id === playlistId)
+  }
+
+  const clearError = () => {
+    setError("")
   }
 
   const value = {
@@ -171,6 +209,8 @@ export const PlaylistProvider = ({ children }) => {
     currentPlaylist,
     currentTrack,
     currentTrackIndex,
+    loading,
+    error,
     createPlaylist,
     deletePlaylist,
     updatePlaylist,
@@ -181,6 +221,8 @@ export const PlaylistProvider = ({ children }) => {
     nextTrack,
     previousTrack,
     getPlaylistById,
+    clearError,
+    loadPlaylists
   }
 
   return <PlaylistContext.Provider value={value}>{children}</PlaylistContext.Provider>

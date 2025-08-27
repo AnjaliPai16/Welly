@@ -16,6 +16,7 @@ import { Link } from "react-router-dom"
 import jamendoApi from "../services/jamendoApi"
 import { usePlaylist } from "../contexts/PlaylistContext"
 import PlaylistManager from "../components/PlaylistManager"
+import MusicPlayer from "../components/MusicPlayer"
 
 export default function CalmingPlaylistPage() {
   const [tracks, setTracks] = useState([])
@@ -25,7 +26,7 @@ export default function CalmingPlaylistPage() {
   const [showAddToPlaylistDialog, setShowAddToPlaylistDialog] = useState(false)
   const [selectedTrack, setSelectedTrack] = useState(null)
 
-  const { playlists, currentTrack, currentPlaylist, currentTrackIndex, playTrack, addTrackToPlaylist, playPlaylist } =
+  const { playlists, currentTrack, currentPlaylist, currentTrackIndex, playTrack, addTrackToPlaylist, playPlaylist, error, clearError } =
     usePlaylist()
 
   // Load calming tracks on component mount
@@ -40,6 +41,8 @@ export default function CalmingPlaylistPage() {
       setTracks(calmingTracks)
     } catch (error) {
       console.error("Error loading calming tracks:", error)
+      // Set a default empty array to prevent the page from breaking
+      setTracks([])
     }
     setLoading(false)
   }
@@ -53,12 +56,21 @@ export default function CalmingPlaylistPage() {
       setTracks(searchResults)
     } catch (error) {
       console.error("Error searching tracks:", error)
+      // Set a default empty array to prevent the page from breaking
+      setTracks([])
     }
     setLoading(false)
   }
 
-  const handlePlayTrack = (track) => {
-    playTrack(track, selectedPlaylist, 0)
+  const handlePlayTrack = (track, index = 0) => {
+    // If a playlist is selected and the track belongs to it, keep playlist context
+    if (selectedPlaylist && selectedPlaylist.tracks?.some(t => (t._id || t.id) === (track._id || track.id))) {
+      const idx = selectedPlaylist.tracks.findIndex(t => (t._id || t.id) === (track._id || track.id))
+      playTrack(track, selectedPlaylist, idx >= 0 ? idx : 0)
+    } else {
+      // Ad-hoc play from current tracks list
+      playTrack(track, null, index)
+    }
   }
 
   const handleAddToPlaylist = (track) => {
@@ -66,9 +78,9 @@ export default function CalmingPlaylistPage() {
     setShowAddToPlaylistDialog(true)
   }
 
-  const handleConfirmAddToPlaylist = (playlistId) => {
+  const handleConfirmAddToPlaylist = async (playlistId) => {
     if (selectedTrack && playlistId) {
-      addTrackToPlaylist(playlistId, selectedTrack)
+      await addTrackToPlaylist(playlistId, selectedTrack)
       setShowAddToPlaylistDialog(false)
       setSelectedTrack(null)
     }
@@ -76,6 +88,14 @@ export default function CalmingPlaylistPage() {
 
   const handlePlaylistSelect = (playlist) => {
     setSelectedPlaylist(playlist)
+  }
+
+  const handleTrackChange = (nextTrack, nextIndex) => {
+    if (currentPlaylist) {
+      playTrack(nextTrack, currentPlaylist, nextIndex)
+    } else {
+      playTrack(nextTrack, null, nextIndex)
+    }
   }
 
   return (
@@ -89,7 +109,7 @@ export default function CalmingPlaylistPage() {
         <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between p-6 lg:px-12 backdrop-blur-sm shadow-sm bg-[#025043]/90">
           <div className="flex items-center space-x-2">
             <div className="w-8 h-8 bg-gradient-to-br from-[#D2E0D3] to-[#F0EEEA] rounded-full flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-[#486856]" />
+              <Sparkles className="w-4 w-4 text-[#486856]" />
             </div>
             <Link to="/" className="text-2xl font-bold text-white">
               Welly
@@ -119,6 +139,21 @@ export default function CalmingPlaylistPage() {
         {/* Main Content */}
         <div className="pt-24 px-6 pb-32">
           <div className="max-w-7xl mx-auto">
+            {/* Error Display */}
+            {error && (
+              <div className="mb-6">
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                  {error}
+                  <button 
+                    onClick={clearError}
+                    className="float-right font-bold text-red-700 hover:text-red-900"
+                  >
+                    ×
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* Header */}
             <div className="text-center mb-12">
               <div className="flex items-center justify-center mb-4">
@@ -166,26 +201,26 @@ export default function CalmingPlaylistPage() {
                     <div className="flex items-center justify-between mb-4">
                       <div>
                         <h3 className="text-xl font-semibold text-[#486856]">{selectedPlaylist.name}</h3>
-                        <p className="text-[#6B8E7A]">{selectedPlaylist.tracks.length} tracks</p>
+                        <p className="text-[#6B8E7A]">{selectedPlaylist.tracks?.length || 0} tracks</p>
                       </div>
                       <Button
                         onClick={() => playPlaylist(selectedPlaylist)}
-                        disabled={selectedPlaylist.tracks.length === 0}
+                        disabled={!selectedPlaylist.tracks || selectedPlaylist.tracks.length === 0}
                         className="bg-[#97B3AE] hover:bg-[#486856] text-white"
                       >
                         <Play className="w-4 h-4 mr-2" />
                         Play All
                       </Button>
                     </div>
-                    {selectedPlaylist.tracks.length > 0 && (
+                    {selectedPlaylist.tracks && selectedPlaylist.tracks.length > 0 && (
                       <div className="space-y-2">
                         {selectedPlaylist.tracks.map((track, index) => (
-                          <div key={track.id} className="flex items-center justify-between p-3 bg-white/50 rounded-lg">
+                          <div key={track._id} className="flex items-center justify-between p-3 bg-white/50 rounded-lg">
                             <div className="flex items-center space-x-3">
                               <span className="text-sm text-[#6B8E7A] w-6">{index + 1}</span>
                               <div>
-                                <p className="font-medium text-[#486856]">{track.name}</p>
-                                <p className="text-sm text-[#6B8E7A]">{track.artist_name}</p>
+                                <p className="font-medium text-[#486856]">{track.title || track.name}</p>
+                                <p className="text-sm text-[#6B8E7A]">{track.artist_name || track.artist}</p>
                               </div>
                             </div>
                             <Button
@@ -218,7 +253,7 @@ export default function CalmingPlaylistPage() {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {tracks.map((track) => (
+                  {tracks.map((track, idx) => (
                     <Card
                       key={track.id}
                       className="bg-white/80 backdrop-blur-sm border-[#97B3AE]/30 hover:shadow-lg transition-all group"
@@ -244,7 +279,7 @@ export default function CalmingPlaylistPage() {
                                 <Plus className="w-4 h-4 mr-2" />
                                 Add to Playlist
                               </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handlePlayTrack(track)}>
+                              <DropdownMenuItem onClick={() => handlePlayTrack(track, idx)}>
                                 <Play className="w-4 h-4 mr-2" />
                                 Play Now
                               </DropdownMenuItem>
@@ -259,7 +294,7 @@ export default function CalmingPlaylistPage() {
                           <div className="flex gap-2">
                             <Button
                               size="sm"
-                              onClick={() => handlePlayTrack(track)}
+                              onClick={() => handlePlayTrack(track, idx)}
                               className="bg-[#97B3AE] hover:bg-[#486856] text-white"
                             >
                               <Play className="w-4 h-4" />
@@ -313,13 +348,13 @@ export default function CalmingPlaylistPage() {
                 <div className="space-y-2 max-h-60 overflow-y-auto">
                   {playlists.map((playlist) => (
                     <Button
-                      key={playlist.id}
+                      key={playlist._id}
                       variant="outline"
-                      onClick={() => handleConfirmAddToPlaylist(playlist.id)}
+                      onClick={() => handleConfirmAddToPlaylist(playlist._id)}
                       className="w-full justify-start border-[#97B3AE]/30 hover:bg-[#97B3AE] hover:text-white"
                     >
                       <List className="w-4 h-4 mr-2" />
-                      {playlist.name} ({playlist.tracks.length} tracks)
+                      {playlist.name} ({playlist.tracks?.length || 0} tracks)
                     </Button>
                   ))}
                 </div>
@@ -328,6 +363,15 @@ export default function CalmingPlaylistPage() {
           </DialogContent>
         </Dialog>
       </div>
+      {currentTrack && (
+        <MusicPlayer
+          currentTrack={currentTrack}
+          playlist={currentPlaylist?.tracks || tracks}
+          currentIndex={currentTrackIndex || 0}
+          onTrackChange={handleTrackChange}
+          className="fixed bottom-4 left-1/2 -translate-x-1/2 w-[95%] max-w-3xl z-[100]"
+        />
+      )}
     </div>
   )
 }

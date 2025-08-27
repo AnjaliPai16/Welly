@@ -6,7 +6,9 @@ const User = require('../models/User');
 // @route   POST /api/auth/register
 // @access  Public
 const register = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { firstName, lastName, email, password } = req.body;
+  
+  console.log('REGISTER REQUEST:', { firstName, lastName, email, password: password ? '[HIDDEN]' : 'MISSING' });
 
   try {
     let user = await User.findOne({ email });
@@ -14,7 +16,7 @@ const register = async (req, res) => {
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    user = new User({ name, email, password });
+    user = new User({ firstName, lastName, email, password });
 
     const salt = await bcrypt.genSalt(10);
     user.password = await bcrypt.hash(password, salt);
@@ -22,14 +24,17 @@ const register = async (req, res) => {
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-    res.status(201).json({
+    const response = {
       token,
       user: {
         id: user._id,
-        name: user.name,
+        name: user.fullName,
         email: user.email,
       },
-    });
+    };
+    
+    console.log('REGISTER SUCCESS:', response);
+    res.status(201).json(response);
   } catch (err) {
     console.error('REGISTER ERROR:', err);
     res.status(500).json({ message: 'Server error', error: err.message });
@@ -64,7 +69,7 @@ const login = async (req, res) => {
       token,
       user: {
         id: user._id,
-        name: user.name,
+        name: user.fullName,
         email: user.email,
       },
     });

@@ -4,7 +4,8 @@
   "main": "server.js",
   "scripts": {
     "dev": "nodemon src/server.js",
-    "start": "node src/server.js"
+    "start": "node src/server.js",
+    "test-setup": "node test-setup.js"
   },
   "keywords": [],
   "author": "",
@@ -20,6 +21,7 @@
     "brace-expansion": "^1.1.12",
     "braces": "^3.0.3",
     "chokidar": "^3.6.0",
+    "cloudinary": "^1.41.0",
     "concat-map": "^0.0.1",
     "cors": "^2.8.5",
     "debug": "^4.4.1",

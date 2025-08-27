@@ -2,10 +2,10 @@
 const express = require('express');
 const router = express.Router();
 const journalController = require('../controllers/journalController');
-const auth = require('../middlewares/auth'); // JWT middleware
+const { authenticateToken } = require('../middlewares/auth'); // JWT middleware
 
 // All routes are protected
-router.use(auth);
+router.use(authenticateToken);
 
 // Create new journal
 router.post('/', journalController.createJournal);
@@ -25,9 +25,9 @@ router.delete('/:id', journalController.deleteJournal);
 // Extra endpoints for convenience
 router.patch('/:id/favorite', async (req, res) => {
   try {
-    const entry = await require('../models/Journal').findOneAndUpdate(
+    const entry = await require('../models/JournalEntry').findOneAndUpdate(
       { _id: req.params.id, user: req.user.id },
-      { favorite: req.body.favorite },
+      { isFavorite: req.body.isFavorite },
       { new: true }
     );
     if (!entry) return res.status(404).json({ message: 'Journal not found' });
@@ -39,7 +39,7 @@ router.patch('/:id/favorite', async (req, res) => {
 
 router.patch('/:id/tags', async (req, res) => {
   try {
-    const entry = await require('../models/Journal').findOneAndUpdate(
+    const entry = await require('../models/JournalEntry').findOneAndUpdate(
       { _id: req.params.id, user: req.user.id },
       { tags: req.body.tags },
       { new: true }
