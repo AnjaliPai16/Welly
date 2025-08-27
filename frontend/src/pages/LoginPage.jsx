@@ -7,7 +7,8 @@ import { Input } from "../components/ui/input"
 import { Label } from "../components/ui/label"
 import { Separator } from "../components/ui/separator"
 import { Eye, EyeOff, Sparkles, Mail, Lock } from "lucide-react"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
+import { useAuth } from "../contexts/AuthContext"
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
@@ -16,6 +17,9 @@ export default function LoginPage() {
     password: "",
     rememberMe: false,
   })
+  
+  const navigate = useNavigate()
+  const { login, error, loading } = useAuth()
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target
@@ -25,10 +29,18 @@ export default function LoginPage() {
     }))
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    // Handle login logic here
-    console.log("Login attempt:", formData)
+
+    const result = await login({
+      email: formData.email,
+      password: formData.password,
+    })
+
+    if (result.success) {
+      // Redirect to home page
+      navigate('/')
+    }
   }
 
   const handleGoogleLogin = () => {
@@ -36,7 +48,7 @@ export default function LoginPage() {
     console.log("[v0] Google login clicked")
     // In a real app, you would integrate with Google OAuth
     // For now, redirect to home page to simulate successful login
-    window.location.href = "/"
+    navigate('/')
   }
 
   return (
@@ -61,6 +73,12 @@ export default function LoginPage() {
           </CardHeader>
 
           <CardContent className="p-8">
+            {error && (
+              <div className="mb-4 p-3 bg-red-100 border border-red-300 text-red-700 rounded-lg text-sm">
+                {error}
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Email Field */}
               <div className="space-y-2">
@@ -78,6 +96,7 @@ export default function LoginPage() {
                     onChange={handleInputChange}
                     className="pl-10 border-[#D2E0D3] focus:border-[#97B3AE] focus:ring-[#97B3AE] rounded-xl h-12"
                     required
+                    disabled={loading}
                   />
                 </div>
               </div>
@@ -98,11 +117,13 @@ export default function LoginPage() {
                     onChange={handleInputChange}
                     className="pl-10 pr-10 border-[#D2E0D3] focus:border-[#97B3AE] focus:ring-[#97B3AE] rounded-xl h-12"
                     required
+                    disabled={loading}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#97B3AE] hover:text-[#486856] transition-colors"
+                    disabled={loading}
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -119,6 +140,7 @@ export default function LoginPage() {
                     checked={formData.rememberMe}
                     onChange={handleInputChange}
                     className="w-4 h-4 text-[#97B3AE] border-[#D2E0D3] rounded focus:ring-[#97B3AE]"
+                    disabled={loading}
                   />
                   <Label htmlFor="rememberMe" className="text-sm text-[#486856]">
                     Remember me
@@ -133,8 +155,9 @@ export default function LoginPage() {
               <Button
                 type="submit"
                 className="w-full bg-[#97B3AE] hover:bg-[#486856] text-white rounded-xl h-12 text-base font-medium transition-all duration-200"
+                disabled={loading}
               >
-                Sign In
+                {loading ? "Signing In..." : "Sign In"}
               </Button>
             </form>
 
@@ -153,6 +176,7 @@ export default function LoginPage() {
                 variant="outline"
                 onClick={handleGoogleLogin}
                 className="w-full border-[#D2E0D3] hover:bg-[#F0EEEA] text-[#486856] rounded-xl h-12 transition-all duration-200 bg-transparent"
+                disabled={loading}
               >
                 <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
                   <path

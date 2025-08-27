@@ -25,13 +25,38 @@ export default function MusicPlayer({
   const [isShuffle, setIsShuffle] = useState(false)
   const [isLiked, setIsLiked] = useState(false)
 
+  // Helper: resolve best audio source
+  const resolveSrc = (track) => {
+    const direct = track?.audio || track?.audiodownload || track?.url
+    if (direct) return direct
+    // Fallback for Jamendo tracks stored without url
+    if (track?.source === 'jamendo' && track?.externalId) {
+      return `https://mp3d.jamendo.com/?trackid=${track.externalId}&format=mp31`
+    }
+    return ''
+  }
+
   // Update audio source when track changes
   useEffect(() => {
     if (currentTrack && audioRef.current) {
-      audioRef.current.src = currentTrack.audio || currentTrack.audiodownload
+      const src = resolveSrc(currentTrack)
+      audioRef.current.src = src
       audioRef.current.load()
       setCurrentTime(0)
       setIsLoading(true)
+      if (!src) {
+        setIsLoading(false)
+        setIsPlaying(false)
+        return
+      }
+      // Attempt autoplay after source set (often allowed after user gesture)
+      audioRef.current.play().then(() => {
+        setIsPlaying(true)
+      }).catch(() => {
+        // Autoplay might be blocked; user can press play
+        setIsPlaying(false)
+        setIsLoading(false)
+      })
     }
   }, [currentTrack])
 
@@ -188,7 +213,7 @@ export default function MusicPlayer({
   return (
     <Card className={`bg-white/90 backdrop-blur-sm border-[#97B3AE]/30 shadow-lg ${className}`}>
       <CardContent className="p-4">
-        <audio ref={audioRef} preload="metadata" />
+        <audio ref={audioRef} preload="metadata" crossOrigin="anonymous" />
 
         {/* Track Info */}
         <div className="flex items-center justify-between mb-4">
@@ -197,8 +222,8 @@ export default function MusicPlayer({
               <Music className="w-6 h-6 text-[#97B3AE]" />
             </div>
             <div className="min-w-0 flex-1">
-              <h3 className="font-semibold text-[#486856] truncate">{currentTrack.name}</h3>
-              <p className="text-sm text-[#6B8E7A] truncate">{currentTrack.artist_name}</p>
+              <h3 className="font-semibold text-[#486856] truncate">{currentTrack.title || currentTrack.name || 'Untitled'}</h3>
+              <p className="text-sm text-[#6B8E7A] truncate">{currentTrack.artist_name || currentTrack.artist || 'Unknown artist'}</p>
             </div>
           </div>
 

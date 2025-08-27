@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { Button } from "./button"
 import { Card, CardContent } from "./card"
 import { X, Upload, Camera, Plus, Trash2 } from "lucide-react"
@@ -9,6 +9,8 @@ export default function PhotoUploadModal({ isOpen, onClose, album, onAddPhotos }
   const [selectedFiles, setSelectedFiles] = useState([])
   const [photoNotes, setPhotoNotes] = useState({})
   const [isDragOver, setIsDragOver] = useState(false)
+  const [uploading, setUploading] = useState(false)
+  const fileInputRef = useRef(null)
 
   const handleFileSelect = (event) => {
     const files = Array.from(event.target.files)
@@ -52,6 +54,12 @@ export default function PhotoUploadModal({ isOpen, onClose, album, onAddPhotos }
     handleFiles(files)
   }
 
+  const openFilePicker = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click()
+    }
+  }
+
   const removePhoto = (photoId) => {
     setSelectedFiles((prev) => prev.filter((photo) => photo.id !== photoId))
     setPhotoNotes((prev) => {
@@ -65,19 +73,25 @@ export default function PhotoUploadModal({ isOpen, onClose, album, onAddPhotos }
     setPhotoNotes((prev) => ({ ...prev, [photoId]: note }))
   }
 
-  const handleUpload = () => {
+  const handleUpload = async () => {
     if (selectedFiles.length === 0) return
 
-    const photosWithNotes = selectedFiles.map((photo) => ({
-      id: photo.id,
-      preview: photo.preview,
-      name: photo.name,
-      note: photoNotes[photo.id] || "",
-      uploadedAt: new Date().toISOString(),
-    }))
+    setUploading(true)
 
-    onAddPhotos(album.id, photosWithNotes)
-    handleClose()
+    try {
+      const photosWithNotes = selectedFiles.map((photo) => ({
+        id: photo.id,
+        file: photo.file,
+        name: photo.name,
+        note: photoNotes[photo.id] || "",
+      }))
+
+      await onAddPhotos(album._id, photosWithNotes)
+    } catch (error) {
+      console.error('Upload failed:', error)
+    } finally {
+      setUploading(false)
+    }
   }
 
   const handleClose = () => {
@@ -114,6 +128,7 @@ export default function PhotoUploadModal({ isOpen, onClose, album, onAddPhotos }
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
+            onClick={openFilePicker}
           >
             <Camera className="w-12 h-12 text-[#B8956F] mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-[#5D4E37] mb-2">Upload Your Photos</h3>
@@ -125,13 +140,12 @@ export default function PhotoUploadModal({ isOpen, onClose, album, onAddPhotos }
               onChange={handleFileSelect}
               className="hidden"
               id="photo-upload"
+              ref={fileInputRef}
             />
-            <label htmlFor="photo-upload">
-              <Button className="bg-[#8B7355] hover:bg-[#5D4E37] text-white cursor-pointer">
-                <Upload className="w-4 h-4 mr-2" />
-                Choose Photos
-              </Button>
-            </label>
+            <Button onClick={openFilePicker} className="bg-[#8B7355] hover:bg-[#5D4E37] text-white cursor-pointer">
+              <Upload className="w-4 h-4 mr-2" />
+              Choose Photos
+            </Button>
           </div>
 
           {/* Selected Photos */}
@@ -178,16 +192,26 @@ export default function PhotoUploadModal({ isOpen, onClose, album, onAddPhotos }
               variant="outline"
               onClick={handleClose}
               className="flex-1 border-[#D4B896] text-[#8B7355] hover:bg-[#E8D5B7] bg-transparent"
+              disabled={uploading}
             >
               Cancel
             </Button>
             <Button
               onClick={handleUpload}
-              disabled={selectedFiles.length === 0}
+              disabled={selectedFiles.length === 0 || uploading}
               className="flex-1 bg-[#8B7355] hover:bg-[#5D4E37] text-white disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Plus className="w-4 h-4 mr-2" />
-              Add {selectedFiles.length} Photo{selectedFiles.length !== 1 ? "s" : ""}
+              {uploading ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Uploading...
+                </>
+              ) : (
+                <>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add {selectedFiles.length} Photo{selectedFiles.length !== 1 ? "s" : ""}
+                </>
+              )}
             </Button>
           </div>
         </div>

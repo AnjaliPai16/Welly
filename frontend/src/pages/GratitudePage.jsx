@@ -8,44 +8,79 @@ import { Link } from "react-router-dom"
 import AddGratitudeModal from "../components/ui/AddGratitudeModal"
 import GratitudeJar from "../components/ui/GratitudeJar"
 import GratitudeNotesModal from "../components/ui/GratitudeNotesModal"
-import {
-  loadGratitudeEntries,
-  saveGratitudeEntries,
-  updateGratitudeEntry,
-  deleteGratitudeEntry,
-} from "../utils/gratitudeStorage"
+import { gratitudeAPI } from "../services/api"
 
 export default function GratitudePage() {
   const [showAddModal, setShowAddModal] = useState(false)
   const [gratitudeEntries, setGratitudeEntries] = useState([])
   const [showNotesModal, setShowNotesModal] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState("")
+  
+  // Stats states from backend integration
+  const [stats, setStats] = useState({
+    totalEntries: 0,
+    monthlyEntries: 0,
+    currentStreak: 0,
+    longestStreak: 0
+  })
 
-  // Load gratitude entries using utility function
+  // Load gratitude entries from backend
   useEffect(() => {
-    const loadEntries = async () => {
-      try {
-        const entries = loadGratitudeEntries()
-        setGratitudeEntries(entries)
-      } catch (error) {
-        console.error("Error loading gratitude entries:", error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
     loadEntries()
+    loadStats()
   }, [])
 
-  // Save gratitude entries using utility function whenever entries change
-  useEffect(() => {
-    if (!isLoading && gratitudeEntries.length >= 0) {
-      const success = saveGratitudeEntries(gratitudeEntries)
-      if (!success) {
-        console.error("Failed to save gratitude entries")
+  const loadEntries = async () => {
+    setIsLoading(true)
+    setError("")
+    
+    try {
+      const response = await gratitudeAPI.getEntries()
+      console.log('Gratitude entries response:', response)
+      
+      if (response.success) {
+        // Normalize and sort entries by date (newest first)
+        const normalizedEntries = (response.data || []).map((entry) => ({
+          ...entry,
+          id: entry._id,
+          text: entry.note,
+          date: entry.createdAt,
+        }))
+        const sortedEntries = normalizedEntries.sort((a, b) => new Date(b.date) - new Date(a.date))
+        console.log('Normalized and sorted gratitude entries:', sortedEntries)
+        setGratitudeEntries(sortedEntries)
+      } else {
+        setError(response.message || 'Failed to load gratitude entries')
       }
+    } catch (error) {
+      setError(error.message || 'Failed to load gratitude entries')
+      console.error("Error loading gratitude entries:", error)
+    } finally {
+      setIsLoading(false)
     }
-  }, [gratitudeEntries, isLoading])
+  }
+
+  const loadStats = async () => {
+    try {
+      const currentDate = new Date()
+      const response = await gratitudeAPI.getStats(
+        currentDate.getMonth() + 1,
+        currentDate.getFullYear()
+      )
+      if (response.success) {
+        const data = response.data || {}
+        setStats({
+          totalEntries: data.totalEntries || 0,
+          monthlyEntries: data.monthlyEntries || 0,
+          currentStreak: data.streaks?.current || 0,
+          longestStreak: data.streaks?.longest || 0,
+        })
+      }
+    } catch (error) {
+      console.error('Failed to load stats:', error)
+    }
+  }
 
   // Get current date in a readable format
   const getCurrentDate = () => {
@@ -61,44 +96,77 @@ export default function GratitudePage() {
   // Always show the add button now
   const canAddGratitude = true
 
-  // Handle saving new gratitude entries with better error handling
-  const handleSaveGratitude = (newEntry) => {
+  // Handle saving new gratitude entries with backend integration
+  const handleSaveGratitude = async (newEntry) => {
     try {
-      setGratitudeEntries((prev) => {
-        const updatedEntries = [newEntry, ...prev]
-        return updatedEntries
-      })
+      const entryData = {
+        note: newEntry.text || newEntry.note || "",
+        tags: newEntry.tags ? 
+          (Array.isArray(newEntry.tags) ? newEntry.tags : 
+           newEntry.tags.split(',').map(tag => tag.trim()).filter(tag => tag)) : 
+          []
+      }
+
+      console.log('Saving gratitude entry:', entryData)
+
+      const response = await gratitudeAPI.createEntry(entryData)
+      console.log('Gratitude save response:', response)
+      
+      if (response.success) {
+        // Reload entries from backend to get updated data
+        await loadEntries()
+        await loadStats()
+        return response.data // Return the saved entry
+      } else {
+        throw new Error(response.message || 'Failed to save gratitude entry')
+      }
     } catch (error) {
-      console.error("Error saving new gratitude entry:", error)
-      // Could show user notification here
+      console.error("Error saving gratitude entry:", error)
+      setError(error.message || 'Failed to save gratitude entry')
+      throw error // Re-throw to let the modal handle the error
     }
   }
 
-  const handleUpdateEntry = (entryId, newText) => {
+  const handleUpdateEntry = async (entryId, newText, newTags = []) => {
     try {
-      const success = updateGratitudeEntry(entryId, newText)
-      if (success) {
-        // Reload entries from storage to get the updated data
-        const updatedEntries = loadGratitudeEntries()
-        setGratitudeEntries(updatedEntries)
+      const entryData = {
+        note: newText,
+        tags: Array.isArray(newTags) ? newTags : 
+              newTags ? newTags.split(',').map(tag => tag.trim()).filter(tag => tag) : []
+      }
+
+      const response = await gratitudeAPI.updateEntry(entryId, entryData)
+      if (response.success) {
+        // Reload entries from backend to get updated data
+        loadEntries()
+        loadStats()
       } else {
+        setError('Failed to update gratitude entry')
         console.error("Failed to update gratitude entry")
       }
     } catch (error) {
+      setError(error.message || 'Failed to update gratitude entry')
       console.error("Error updating gratitude entry:", error)
     }
   }
 
-  const handleDeleteEntry = (entryId) => {
+  const handleDeleteEntry = async (entryId) => {
+    if (!window.confirm('Are you sure you want to delete this gratitude entry?')) {
+      return
+    }
+
     try {
-      const success = deleteGratitudeEntry(entryId)
-      if (success) {
-        // Remove the entry from local state
-        setGratitudeEntries((prev) => prev.filter((entry) => entry.id !== entryId))
+      const response = await gratitudeAPI.deleteEntry(entryId)
+      if (response.success) {
+        // Reload entries from backend
+        loadEntries()
+        loadStats()
       } else {
+        setError('Failed to delete gratitude entry')
         console.error("Failed to delete gratitude entry")
       }
     } catch (error) {
+      setError(error.message || 'Failed to delete gratitude entry')
       console.error("Error deleting gratitude entry:", error)
     }
   }
@@ -113,7 +181,7 @@ export default function GratitudePage() {
   // Show loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#E6E6FA] via-[#F0E6FF] to-[#DDA0DD] flex items-center justify-center">
+      <div className="min-h-screen  flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 bg-gradient-to-br from-[#9370DB] to-[#8A2BE2] rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
             <Heart className="w-8 h-8 text-white" />
@@ -128,7 +196,7 @@ export default function GratitudePage() {
     <div className="min-h-screen bg-gradient-to-br from-[#E6E6FA] via-[#F0E6FF] to-[#DDA0DD]">
       <nav className="flex items-center justify-between p-6 lg:px-12 backdrop-blur-sm shadow-sm bg-[#7e4d8e]">
         <div className="flex items-center space-x-2">
-          <div className="w-8 h-8 bg-[#9370DB]  rounded-full flex items-center justify-center">
+          <div className="w-8 h-8 bg-[#9370DB] rounded-full flex items-center justify-center">
             <Sparkles className="w-4 h-4 text-white" />
           </div>
           <span className="text-2xl font-bold text-[#f6f2f8]">Welly</span>
@@ -143,6 +211,15 @@ export default function GratitudePage() {
           </Link>
           <Link to="/habits" className="text-[#f1eef4] hover:text-[#6A5ACD] transition-colors">
             Habits
+          </Link>
+          <Link to="/gratitude" className="text-[#f1eef4] hover:text-[#6A5ACD] transition-colors font-semibold">
+            Gratitude
+          </Link>
+          <Link to="/memory" className="text-[#f1eef4] hover:text-[#6A5ACD] transition-colors">
+            Memory
+          </Link>
+          <Link to="/playlist" className="text-[#f1eef4] hover:text-[#6A5ACD] transition-colors">
+            Playlist
           </Link>
           <Button className="bg-[#9370DB] hover:bg-[#8A2BE2] text-white border-none">Get Started</Button>
         </div>
@@ -164,6 +241,15 @@ export default function GratitudePage() {
               <Link to="/habits" className="text-[#9370DB] text-lg">
                 Habits
               </Link>
+              <Link to="/gratitude" className="text-[#9370DB] text-lg font-semibold">
+                Gratitude
+              </Link>
+              <Link to="/memory" className="text-[#9370DB] text-lg">
+                Memory
+              </Link>
+              <Link to="/playlist" className="text-[#9370DB] text-lg">
+                Playlist
+              </Link>
               <Button className="bg-[#9370DB] hover:bg-[#8A2BE2] text-white">Get Started</Button>
             </div>
           </SheetContent>
@@ -174,14 +260,14 @@ export default function GratitudePage() {
       <div
         className="relative min-h-[calc(100vh-80px)]"
         style={{
-          backgroundImage: "url(gratitude.jpg)",
+          backgroundImage: "url(gratitude1.jpg)",
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
         }}
       >
-        {/* Semi-transparent overlay for better text readability */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#E6E6FA]/60 via-[#F0E6FF]/60 to-[#DDA0DD]/60"></div>
+        {/* Semi-transparent overlay for better text readabilit        y */}
+{/* <div className="absolute inset-0 bg-gradient-to-br from-[#E6E6FA]/60 via-[#F0E6FF]/60 to-[#DDA0DD]/60"></div> */}
 
         <div className="relative z-10 p-6 pt-12">
           {/* Header Section */}
@@ -193,12 +279,29 @@ export default function GratitudePage() {
             </p>
           </div>
 
+          {/* Error Display */}
+          {error && (
+            <div className="max-w-2xl mx-auto mb-8">
+              <div className="p-4 bg-red-100 border border-red-300 text-red-700 rounded-lg text-center">
+                {error}
+                <Button 
+                  onClick={() => setError("")}
+                  variant="ghost"
+                  size="sm"
+                  className="ml-2 text-red-600 hover:text-red-800"
+                >
+                  ×
+                </Button>
+              </div>
+            </div>
+          )}
+
           {/* Add Gratitude Button */}
-          {/* Always show add button now */}
           <div className="flex justify-center mb-12">
             <Button
               onClick={() => setShowAddModal(true)}
               className="bg-[#9370DB] hover:bg-[#8A2BE2] text-white px-8 py-4 text-lg rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
+              disabled={isLoading}
             >
               <Plus className="w-5 h-5 mr-2" />
               Add Gratitude
@@ -210,6 +313,28 @@ export default function GratitudePage() {
             <div className="text-center mb-8">
               <h2 className="text-3xl font-light text-[#4B0082] mb-4">Your Gratitude Jar</h2>
               <p className="text-[#6A5ACD]">{gratitudeEntries.length} grateful moments collected</p>
+              
+              {/* Stats Display (Optional - can be shown or hidden) */}
+              {stats.totalEntries > 0 && (
+                <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto">
+                  <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3">
+                    <div className="text-2xl font-bold text-[#4B0082]">{stats.totalEntries}</div>
+                    <div className="text-xs text-[#6A5ACD]">Total</div>
+                  </div>
+                  <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3">
+                    <div className="text-2xl font-bold text-[#4B0082]">{stats.monthlyEntries}</div>
+                    <div className="text-xs text-[#6A5ACD]">This Month</div>
+                  </div>
+                  <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3">
+                    <div className="text-2xl font-bold text-[#4B0082]">{stats.currentStreak}</div>
+                    <div className="text-xs text-[#6A5ACD]">Current Streak</div>
+                  </div>
+                  <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3">
+                    <div className="text-2xl font-bold text-[#4B0082]">{stats.longestStreak}</div>
+                    <div className="text-xs text-[#6A5ACD]">Longest Streak</div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Gratitude Jar Visual */}
@@ -219,13 +344,27 @@ export default function GratitudePage() {
       </div>
 
       {/* Modals */}
-      <AddGratitudeModal isOpen={showAddModal} onClose={() => setShowAddModal(false)} onSave={handleSaveGratitude} />
+      <AddGratitudeModal 
+        isOpen={showAddModal} 
+        onClose={() => {
+          setShowAddModal(false)
+          // Clear any errors when closing modal
+          if (error) setError("")
+        }} 
+        onSave={handleSaveGratitude}
+        loading={isLoading}
+      />
       <GratitudeNotesModal
         isOpen={showNotesModal}
-        onClose={() => setShowNotesModal(false)}
+        onClose={() => {
+          setShowNotesModal(false)
+          // Clear any errors when closing modal
+          if (error) setError("")
+        }}
         entries={gratitudeEntries}
         onUpdateEntry={handleUpdateEntry}
         onDeleteEntry={handleDeleteEntry}
+        loading={isLoading}
       />
     </div>
   )
