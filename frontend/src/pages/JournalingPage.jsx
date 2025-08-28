@@ -219,9 +219,7 @@ const JournalingPage = () => {
           <Link to="/" className="text-[#486856] hover:text-[#97B3AE] transition-colors">
             Home
           </Link>
-          <Link to="/journaling" className="text-[#486856] hover:text-[#97B3AE] transition-colors font-semibold">
-            Journal
-          </Link>
+          
           <Link to="/habits" className="text-[#486856] hover:text-[#97B3AE] transition-colors">
             Habits
           </Link>
@@ -231,10 +229,14 @@ const JournalingPage = () => {
           <Link to="/memory" className="text-[#486856] hover:text-[#97B3AE] transition-colors">
             Memory
           </Link>
+          <Link to="/breathing" className="text-[#486856] hover:text-[#97B3AE] transition-colors ">
+            Meditation
+          </Link>
           <Link to="/playlist" className="text-[#486856] hover:text-[#97B3AE] transition-colors">
             Playlist
           </Link>
-          <Button className="bg-[#486856] hover:bg-[#97B3AE] text-white border-none">Get Started</Button>
+
+        
         </div>
 
         <Sheet>

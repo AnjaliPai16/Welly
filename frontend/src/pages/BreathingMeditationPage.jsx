@@ -89,6 +89,7 @@ export default function BreathingMeditationPage() {
             <Link to="/habits" className="text-white hover:opacity-80">Habits</Link>
             <Link to="/gratitude" className="text-white hover:opacity-80">Gratitude</Link>
             <Link to="/memory" className="text-white hover:opacity-80">Memory</Link>
+            <Link to="/playlist" className="text-white hover:opacity-80">Playlist</Link>
           </div>
         </nav>
 

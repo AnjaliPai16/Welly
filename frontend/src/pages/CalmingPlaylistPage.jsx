@@ -130,6 +130,9 @@ export default function CalmingPlaylistPage() {
             <Link to="/gratitude" className="text-white hover:text-[#D2E0D3] transition-colors">
               Gratitude
             </Link>
+            <Link to="/breathing" className="text-white hover:text-[#D2E0D3] transition-colors">
+              Meditation
+            </Link>
             <Link to="/memory" className="text-white hover:text-[#D2E0D3] transition-colors">
               Memory
             </Link>

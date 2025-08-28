@@ -47,24 +47,68 @@ export default function AboutPage() {
               </p>
             </div>
 
-            {/* Mission Section */}
+            {/* Personal Introduction */}
             <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 md:p-12 mb-16 shadow-lg">
               <div className="text-center mb-12">
-                <h2 className="text-3xl md:text-4xl font-light text-[#486856] mb-6">Our Mission</h2>
+                <h2 className="text-3xl md:text-4xl font-light text-[#486856] mb-6">Meet the Creator</h2>
                 <div className="w-24 h-1 bg-gradient-to-r from-[#97B3AE] to-[#D2E0D3] mx-auto rounded-full"></div>
               </div>
               
               <div className="grid md:grid-cols-2 gap-8 items-center">
                 <div>
-                  <h3 className="text-2xl font-semibold text-[#486856] mb-4">Why We Created Welly</h3>
+                  <h3 className="text-2xl font-semibold text-[#486856] mb-4">Hi, I'm Anjali Pai</h3>
+                  <p className="text-[#6B8E7A] leading-relaxed mb-6">
+                    I'm currently a sophomore at IIIT Lucknow, and like many college students, I've experienced 
+                    firsthand the challenges of balancing academic pressures with personal well-being. The transition 
+                    to college life, demanding coursework, and the pressure to excel can sometimes feel overwhelming.
+                  </p>
+                  <p className="text-[#6B8E7A] leading-relaxed mb-6">
+                    Through my own journey of discovering what works for mental wellness, I realized that many students 
+                    around me were struggling with similar challenges. I wanted to create something that could help 
+                    fellow students build sustainable habits and prioritize their mental health.
+                  </p>
+                  <p className="text-[#6B8E7A] leading-relaxed">
+                    Welly is my way of sharing the tools and practices that have helped me thrive in college. 
+                    It's built <strong>by a student, for students</strong> – because I understand the unique challenges 
+                    we face and what actually works in our busy, often chaotic lives.
+                  </p>
+                </div>
+                
+                <div className="bg-gradient-to-br from-[#F2C3B9]/20 to-[#F0DDD6]/20 rounded-2xl p-8">
+                  <div className="flex items-center space-x-4 mb-4">
+                    <Brain className="w-8 h-8 text-[#97B3AE]" />
+                    <h4 className="text-xl font-semibold text-[#486856]">A Student's Perspective</h4>
+                  </div>
+                  <p className="text-[#6B8E7A] mb-4">
+                    As a current college student, I understand the real challenges we face – from exam stress 
+                    to social pressures, from late-night study sessions to finding balance.
+                  </p>
+                  <p className="text-[#6B8E7A]">
+                    Every feature in Welly has been designed keeping in mind what actually fits into a student's 
+                    schedule and what genuinely helps with the stress we experience daily.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Mission Section */}
+            <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 md:p-12 mb-16 shadow-lg">
+              <div className="text-center mb-12">
+                <h2 className="text-3xl md:text-4xl font-light text-[#486856] mb-6">My Mission</h2>
+                <div className="w-24 h-1 bg-gradient-to-r from-[#97B3AE] to-[#D2E0D3] mx-auto rounded-full"></div>
+              </div>
+              
+              <div className="grid md:grid-cols-2 gap-8 items-center">
+                <div>
+                  <h3 className="text-2xl font-semibold text-[#486856] mb-4">Why I Created Welly</h3>
                   <p className="text-[#6B8E7A] leading-relaxed mb-6">
                     College life is a whirlwind of deadlines, exams, social pressures, and personal growth. In this chaos, 
-                    mental wellness often takes a backseat. We've seen too many brilliant students struggle with stress, 
+                    mental wellness often takes a backseat. I've seen too many brilliant students struggle with stress, 
                     anxiety, and burnout because they didn't have the tools to maintain their mental health.
                   </p>
                   <p className="text-[#6B8E7A] leading-relaxed">
                     Welly was born from a simple belief: <strong>every student deserves to thrive, not just survive.</strong> 
-                    We're here to provide the tools, guidance, and support needed to build sustainable wellness practices 
+                    I'm here to provide the tools, guidance, and support needed to build sustainable wellness practices 
                     that last beyond graduation.
                   </p>
                 </div>
@@ -268,5 +312,3 @@ export default function AboutPage() {
     </div>
   )
 }
-
-

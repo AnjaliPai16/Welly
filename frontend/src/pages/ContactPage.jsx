@@ -1,33 +1,8 @@
 import { Button } from "../components/ui/button"
 import { Card, CardContent } from "../components/ui/card"
-import { Mail, MessageCircle, Clock, MapPin, Sparkles, ArrowLeft, Send } from "lucide-react"
-import { useState } from "react"
+import { Mail, Phone, Clock, Sparkles, ArrowLeft } from "lucide-react"
 
 export default function ContactPage() {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    subject: '',
-    message: ''
-  })
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }))
-  }
-
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    // Handle form submission here
-    console.log('Form submitted:', formData)
-    // You can add actual form submission logic here
-    alert('Thank you for your message! We\'ll get back to you soon.')
-    setFormData({ name: '', email: '', subject: '', message: '' })
-  }
-
   const goHome = () => {
     // You can replace this with your navigation logic
     window.location.href = '/'
@@ -66,157 +41,68 @@ export default function ContactPage() {
               <span className="block text-[#90745b]">Touch</span>
             </h1>
             <p className="text-xl text-[#769121] mb-8 max-w-2xl mx-auto leading-relaxed">
-              We'd love to hear from you. Send us a message and we'll respond as soon as possible.
+              We'd love to hear from you. Reach out to us directly through email or phone.
             </p>
           </div>
         </section>
 
         {/* Contact Section */}
         <section className="py-12 px-6">
-          <div className="max-w-6xl mx-auto">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-              
-              {/* Contact Information */}
-              <div className="space-y-8">
-                <div>
-                  <h2 className="text-3xl font-light text-[black] mb-6">Let's Connect</h2>
-                  <p className="text-lg text-[#6B8E7A] mb-8 leading-relaxed">
-                    Whether you have questions about our wellness features, need support, or want to share feedback, 
-                    we're here to help you on your journey to inner peace.
-                  </p>
-                </div>
-
-                {/* Contact Cards */}
-                <div className="space-y-6">
-                  <Card className="border-none shadow-lg bg-gradient-to-br from-[#D2E0D3] to-[#F0EEEA] rounded-2xl">
-                    <CardContent className="p-6 flex items-center space-x-4">
-                      <div className="w-12 h-12 bg-white/40 rounded-full flex items-center justify-center backdrop-blur-sm">
-                        <Mail className="w-6 h-6 text-[#486856]" />
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold text-[#486856] mb-1">Email Us</h3>
-                        <a 
-                          href="mailto:hello@welly.com" 
-                          className="text-[#97B3AE] hover:text-[#486856] transition-colors"
-                        >
-                          anjalisugandhapai@gmail.com
-                        </a>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="border-none shadow-lg bg-gradient-to-br from-[#F2C3B9] to-[#F0DDD6] rounded-2xl">
-                    <CardContent className="p-6 flex items-center space-x-4">
-                      <div className="w-12 h-12 bg-white/40 rounded-full flex items-center justify-center backdrop-blur-sm">
-                        <MessageCircle className="w-6 h-6 text-[#486856]" />
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold text-[#486856] mb-1">Support</h3>
-                        <a 
-                          href="mailto:support@welly.com" 
-                          className="text-[#97B3AE] hover:text-[#486856] transition-colors"
-                        >
-                          support@welly.com
-                        </a>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="border-none shadow-lg bg-gradient-to-br from-[#97B3AE] to-[#D2E0D3] rounded-2xl">
-                    <CardContent className="p-6 flex items-center space-x-4">
-                      <div className="w-12 h-12 bg-white/40 rounded-full flex items-center justify-center backdrop-blur-sm">
-                        <Clock className="w-6 h-6 text-white" />
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold text-white mb-1">Response Time</h3>
-                        <p className="text-white/80">Usually within 24 hours</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>
-
-              {/* Contact Form */}
-              <div>
-                <Card className="border-none shadow-xl bg-white/80 backdrop-blur-sm rounded-3xl">
-                  <CardContent className="p-8">
-                    <h3 className="text-2xl font-light text-[#486856] mb-6">Send us a Message</h3>
-                    
-                    <div className="space-y-6">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium text-[#486856] mb-2">
-                            Name
-                          </label>
-                          <input
-                            type="text"
-                            name="name"
-                            value={formData.name}
-                            onChange={handleInputChange}
-                            required
-                            className="w-full px-4 py-3 rounded-xl border-2 border-[#D2E0D3] focus:border-[#97B3AE] focus:outline-none transition-colors bg-white/50"
-                            placeholder="Your name"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-[#486856] mb-2">
-                            Email
-                          </label>
-                          <input
-                            type="email"
-                            name="email"
-                            value={formData.email}
-                            onChange={handleInputChange}
-                            required
-                            className="w-full px-4 py-3 rounded-xl border-2 border-[#D2E0D3] focus:border-[#97B3AE] focus:outline-none transition-colors bg-white/50"
-                            placeholder="your@email.com"
-                          />
-                        </div>
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium text-[#486856] mb-2">
-                          Subject
-                        </label>
-                        <input
-                          type="text"
-                          name="subject"
-                          value={formData.subject}
-                          onChange={handleInputChange}
-                          required
-                          className="w-full px-4 py-3 rounded-xl border-2 border-[#D2E0D3] focus:border-[#97B3AE] focus:outline-colors bg-white/50"
-                          placeholder="What's this about?"
-                        />
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium text-[#486856] mb-2">
-                          Message
-                        </label>
-                        <textarea
-                          name="message"
-                          value={formData.message}
-                          onChange={handleInputChange}
-                          required
-                          rows={5}
-                          className="w-full px-4 py-3 rounded-xl border-2 border-[#D2E0D3] focus:border-[#97B3AE] focus:outline-none transition-colors bg-white/50 resize-vertical"
-                          placeholder="Tell us how we can help..."
-                        />
-                      </div>
-                      
-                      <Button 
-                        onClick={handleSubmit}
-                        size="lg" 
-                        className="w-full bg-[#97B3AE] hover:bg-[#486856] text-white px-8 py-4 text-lg rounded-xl transition-all duration-300 hover:shadow-lg"
-                      >
-                        <Send className="w-5 h-5 mr-2" />
-                        Send Message
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-light text-[black] mb-6">Let's Connect</h2>
+              <p className="text-lg text-[#6B8E7A] mb-8 leading-relaxed max-w-2xl mx-auto">
+                Whether you have questions about our wellness features, need support, or want to share feedback, 
+                we're here to help you on your journey to inner peace.
+              </p>
             </div>
+
+            {/* Contact Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
+              <Card className="border-none shadow-lg bg-gradient-to-br from-[#D2E0D3] to-[#F0EEEA] rounded-2xl hover:shadow-xl transition-all duration-300">
+                <CardContent className="p-8 text-center">
+                  <div className="w-16 h-16 bg-white/40 rounded-full flex items-center justify-center backdrop-blur-sm mx-auto mb-4">
+                    <Mail className="w-8 h-8 text-[#486856]" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-[#486856] mb-3">Email Us</h3>
+                  <a 
+                    href="mailto:anjalisugandhapai@gmail.com" 
+                    className="text-[#97B3AE] hover:text-[#486856] transition-colors text-lg font-medium"
+                  >
+                    anjalisugandhapai@gmail.com
+                  </a>
+                  <p className="text-[#6B8E7A] text-sm mt-2">We'll respond within 24 hours</p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-none shadow-lg bg-gradient-to-br from-[#F2C3B9] to-[#F0DDD6] rounded-2xl hover:shadow-xl transition-all duration-300">
+                <CardContent className="p-8 text-center">
+                  <div className="w-16 h-16 bg-white/40 rounded-full flex items-center justify-center backdrop-blur-sm mx-auto mb-4">
+                    <Phone className="w-8 h-8 text-[#486856]" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-[#486856] mb-3">Call Us</h3>
+                  <a 
+                    href="tel:+917619234859" 
+                    className="text-[#97B3AE] hover:text-[#486856] transition-colors text-lg font-medium"
+                  >
+                    +91 7619234859
+                  </a>
+                  <p className="text-[#6B8E7A] text-sm mt-2">Available during business hours</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Additional Info Card */}
+            <Card className="border-none shadow-lg bg-gradient-to-br from-[#97B3AE] to-[#D2E0D3] rounded-2xl mt-8 max-w-2xl mx-auto">
+              <CardContent className="p-8 text-center">
+                <div className="w-16 h-16 bg-white/40 rounded-full flex items-center justify-center backdrop-blur-sm mx-auto mb-4">
+                  <Clock className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="text-xl font-semibold text-white mb-3">Response Time</h3>
+                <p className="text-white/90 text-lg">Usually within 24 hours</p>
+                <p className="text-white/70 text-sm mt-2">We're committed to helping you on your wellness journey</p>
+              </CardContent>
+            </Card>
           </div>
         </section>
 

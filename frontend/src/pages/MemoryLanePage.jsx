@@ -297,7 +297,13 @@ export default function MemoryLanePage() {
               <Link to="/gratitude" className="text-[#5D4E37] hover:text-[#8B7355] transition-colors font-medium">
                 Gratitude
               </Link>
-              <Button className="bg-[#8B7355] hover:bg-[#5D4E37] text-white">Get Started</Button>
+              <Link to="/breathing" className="text-[#5D4E37] hover:text-[#8B7355] transition-colors font-medium">
+                Meditation
+              </Link>
+              <Link to="/playlist" className="text-[#5D4E37] hover:text-[#8B7355] transition-colors font-medium">
+                Playlist
+              </Link>
+
             </div>
 
             {/* Mobile Navigation */}
