@@ -99,7 +99,7 @@ export default function ContactPage() {
                           href="mailto:hello@welly.com" 
                           className="text-[#97B3AE] hover:text-[#486856] transition-colors"
                         >
-                          hello@welly.com
+                          anjalisugandhapai@gmail.com
                         </a>
                       </div>
                     </CardContent>
