@@ -201,7 +201,7 @@ function HomePage() {
               >
                 {" "}
                 {/* sage, sage */}
-                Learn More
+                <a href="/about" >Learn More </a>
               </Button>
             </div>
           </div>
