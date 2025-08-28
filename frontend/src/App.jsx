@@ -2,21 +2,32 @@ import { Button } from "./components/ui/button"
 import { Card, CardContent } from "./components/ui/card"
 import { BookOpen, Heart, CheckSquare, Wind, Camera, Music, Menu, Sparkles } from "lucide-react"
 import { Sheet, SheetContent, SheetTrigger } from "./components/ui/sheet"
-import { Link, Routes, Route } from "react-router-dom" // Import Link, Routes, Route
-import FeatureDetailPage from "./pages/FeatureDetailPage" // Import FeatureDetailPage
-import "./App.css" // Import the minimal CSS file
-import JournalingPage from "./pages/JournalingPage" // Import JournalingPage
-import HabitTrackerPage from "./pages/HabitTrackerPage" // Import HabitTrackerPage
-import GratitudePage from "./pages/GratitudePage" // Import GratitudePage
+import { Link, Routes, Route } from "react-router-dom"
+import FeatureDetailPage from "./pages/FeatureDetailPage"
+import "./App.css"
+import JournalingPage from "./pages/JournalingPage"
+import HabitTrackerPage from "./pages/HabitTrackerPage"
+import GratitudePage from "./pages/GratitudePage"
 import MemoryLanePage from "./pages/MemoryLanePage"
-import LoginPage from "./pages/LoginPage" // Import LoginPage
-import SignupPage from "./pages/SignupPage" // Import SignupPage
+import LoginPage from "./pages/LoginPage"
+import SignupPage from "./pages/SignupPage"
 import CalmingPlaylistPage from "./pages/CalmingPlaylistPage"
 import BreathingMeditationPage from "./pages/BreathingMeditationPage"
 import AboutPage from "./pages/AboutPage"
 import ContactPage from "./pages/ContactPage"
-import ProtectedRoute from "./components/ProtectedRoute" // Import ProtectedRoute
-import { useAuth } from "./contexts/AuthContext" // Import useAuth
+import ProtectedRoute from "./components/ProtectedRoute"
+import { useAuth } from "./contexts/AuthContext"
+
+// Function to handle smooth scrolling to features section
+const scrollToFeatures = () => {
+  const featuresSection = document.getElementById('features');
+  if (featuresSection) {
+    featuresSection.scrollIntoView({ 
+      behavior: 'smooth',
+      block: 'start'
+    });
+  }
+};
 
 // Main component for the landing page content
 function HomePage() {
@@ -87,19 +98,16 @@ function HomePage() {
           </div>
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            <a href="#features" className="text-[#486856] hover:text-[#D6CBBF] transition-colors">
-              {" "}
-              {/* sage-dark, cream-warm */}
+            <button 
+              onClick={scrollToFeatures}
+              className="text-[#486856] hover:text-[#D6CBBF] transition-colors cursor-pointer"
+            >
               Features
-            </a>
+            </button>
             <a href="/about" className="text-[#486856] hover:text-[#D6CBBF] transition-colors">
-              {" "}
-              {/* sage-dark, cream-warm */}
               About
             </a>
             <a href="/contact" className="text-[#486856] hover:text-[#D6CBBF] transition-colors">
-              {" "}
-              {/* sage-dark, cream-warm */}
               Contact
             </a>
             {isAuthenticated ? (
@@ -122,28 +130,21 @@ function HomePage() {
           <Sheet>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="md:hidden text-[#97B3AE]">
-                {" "}
-                {/* sage */}
                 <Menu className="h-6 w-6" />
               </Button>
             </SheetTrigger>
             <SheetContent className="bg-[#F0EEEA]">
-              {" "}
-              {/* cream */}
               <div className="flex flex-col space-y-6 mt-8">
-                <a href="/features" className="text-[#97B3AE] text-lg">
-                  {" "}
-                  {/* sage */}
+                <button 
+                  onClick={scrollToFeatures}
+                  className="text-[#97B3AE] text-lg text-left cursor-pointer"
+                >
                   Features
-                </a>
+                </button>
                 <a href="/about" className="text-[#97B3AE] text-lg">
-                  {" "}
-                  {/* sage */}
                   About
                 </a>
                 <a href="/contact" className="text-[#97B3AE] text-lg">
-                  {" "}
-                  {/* sage */}
                   Contact
                 </a>
                 {isAuthenticated ? (
@@ -169,24 +170,22 @@ function HomePage() {
         <section className="text-center py-20 px-6">
           <div className="max-w-4xl mx-auto">
             <h1 className="text-5xl md:text-7xl font-light text-[black] mb-6 leading-tight">
-              {" "}
-              {/* sage-dark */}
               Your Journey to
-              <span className="block text-[#90745b]">Inner Peace</span> {/* Reverted to cream-warm */}
+              <span className="block text-[#90745b]">Inner Peace</span>
             </h1>
             <p className="text-xl text-[#769121] mb-12 max-w-2xl mx-auto leading-relaxed">
-              {" "}
-              {/* sage-dark */}
               Discover tranquility through mindful practices, gentle habits, and moments of gratitude. Welly is your
               companion for a more peaceful, centered life.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               {isAuthenticated ? (
-                <Link to="#features">
-                  <Button size="lg" className="bg-[#97B3AE] hover:bg-[#D6CBBF] text-white px-8 py-4 text-lg">
-                    Explore Features
-                  </Button>
-                </Link>
+                <Button 
+                  size="lg" 
+                  className="bg-[#97B3AE] hover:bg-[#D6CBBF] text-white px-8 py-4 text-lg"
+                  onClick={scrollToFeatures}
+                >
+                  Explore Features
+                </Button>
               ) : (
                 <Link to="/signup">
                   <Button size="lg" className="bg-[#97B3AE] hover:bg-[#D6CBBF] text-white px-8 py-4 text-lg">
@@ -199,8 +198,6 @@ function HomePage() {
                 variant="outline"
                 className="border-[#97B3AE] text-[#97B3AE] hover:bg-[#97B3AE] hover:text-white px-8 py-4 text-lg bg-transparent"
               >
-                {" "}
-                {/* sage, sage */}
                 <a href="/about" >Learn More </a>
               </Button>
             </div>
@@ -298,21 +295,19 @@ function HomePage() {
           <div className="max-w-4xl mx-auto text-center">
             <div className="bg-white/50 backdrop-blur-sm rounded-3xl p-12 shadow-lg">
               <h2 className="text-3xl md:text-4xl font-light text-[#486856] mb-6">
-                {" "}
-                {/* sage-dark */}
                 Ready to Start Your Wellness Journey?
               </h2>
               <p className="text-lg text-[#97B3AE] mb-8 max-w-2xl mx-auto">
-                {" "}
-                {/* sage */}
                 Join thousands who have found peace and balance through mindful daily practices
               </p>
               {isAuthenticated ? (
-                <Link to="#features">
-                  <Button size="lg" className="bg-[#97B3AE] hover:bg-[#D6CBBF] text-white px-12 py-4 text-lg">
-                    Explore Features
-                  </Button>
-                </Link>
+                <Button 
+                  size="lg" 
+                  className="bg-[#97B3AE] hover:bg-[#D6CBBF] text-white px-12 py-4 text-lg"
+                  onClick={scrollToFeatures}
+                >
+                  Explore Features
+                </Button>
               ) : (
                 <Link to="/signup">
                   <Button size="lg" className="bg-[#97B3AE] hover:bg-[#D6CBBF] text-white px-12 py-4 text-lg">
@@ -325,32 +320,21 @@ function HomePage() {
         </section>
         {/* Footer */}
         <footer className="py-12 px-6 border-t border-[#97B3AE]/40">
-          {" "}
-          {/* sage/40 */}
           <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center space-x-2 mb-4 md:mb-0">
               <div className="w-6 h-6 bg-gradient-to-br from-[#97B3AE] to-[#D2E0D3] rounded-full flex items-center justify-center">
-                {/* sage to sage-light */}
                 <Sparkles className="w-3 h-3 text-white" />
               </div>
-              <span className="text-xl font-bold text-[#97B3AE]">Welly</span> {/* sage */}
+              <span className="text-xl font-bold text-[#97B3AE]">Welly</span>
             </div>
             <div className="flex space-x-6 text-[#97B3AE]">
-              {" "}
-              {/* sage */}
               <a href="#" className="hover:text-[#97B3AE] transition-colors">
-                {" "}
-                {/* sage */}
                 Privacy
               </a>
               <a href="#" className="hover:text-[#97B3AE] transition-colors">
-                {" "}
-                {/* sage */}
                 Terms
               </a>
               <a href="#" className="hover:text-[#97B3AE] transition-colors">
-                {" "}
-                {/* sage */}
                 Support
               </a>
             </div>
