@@ -212,16 +212,17 @@ export default function GratitudePage() {
           <Link to="/habits" className="text-[#f1eef4] hover:text-[#6A5ACD] transition-colors">
             Habits
           </Link>
-          <Link to="/gratitude" className="text-[#f1eef4] hover:text-[#6A5ACD] transition-colors font-semibold">
-            Gratitude
-          </Link>
+         
           <Link to="/memory" className="text-[#f1eef4] hover:text-[#6A5ACD] transition-colors">
             Memory
+          </Link>
+          <Link to="/breathing" className="text-[#f1eef4] hover:text-[#6A5ACD] transition-colors ">
+            Meditation
           </Link>
           <Link to="/playlist" className="text-[#f1eef4] hover:text-[#6A5ACD] transition-colors">
             Playlist
           </Link>
-          <Button className="bg-[#9370DB] hover:bg-[#8A2BE2] text-white border-none">Get Started</Button>
+  
         </div>
 
         <Sheet>
@@ -241,16 +242,17 @@ export default function GratitudePage() {
               <Link to="/habits" className="text-[#9370DB] text-lg">
                 Habits
               </Link>
-              <Link to="/gratitude" className="text-[#9370DB] text-lg font-semibold">
-                Gratitude
-              </Link>
+              
               <Link to="/memory" className="text-[#9370DB] text-lg">
                 Memory
+              </Link>
+              <Link to="/breathing" className="text-[#9370DB] text-lg ">
+                Meditation
               </Link>
               <Link to="/playlist" className="text-[#9370DB] text-lg">
                 Playlist
               </Link>
-              <Button className="bg-[#9370DB] hover:bg-[#8A2BE2] text-white">Get Started</Button>
+
             </div>
           </SheetContent>
         </Sheet>

@@ -285,6 +285,16 @@ const HabitTrackerPage = () => {
           <a href="/gratitude" className="text-[#2C5282] hover:text-[#4A90E2] transition-colors">
             Gratitude
           </a>
+          
+          <a href="/memory" className="text-[#2C5282] hover:text-[#4A90E2] transition-colors">
+            Memory
+          </a>
+          <a href="/breathing" className="text-[#2C5282] hover:text-[#4A90E2] transition-colors">
+            Meditation
+          </a>
+          <a href="/playlist" className="text-[#2C5282] hover:text-[#4A90E2] transition-colors">
+            Playlist
+          </a>
           <Button className="bg-[#2C5282] hover:bg-[#4A90E2] text-white border-none">Get Started</Button>
         </div>
         

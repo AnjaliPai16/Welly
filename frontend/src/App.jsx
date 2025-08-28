@@ -131,17 +131,17 @@ function HomePage() {
               {" "}
               {/* cream */}
               <div className="flex flex-col space-y-6 mt-8">
-                <a href="#features" className="text-[#97B3AE] text-lg">
+                <a href="/features" className="text-[#97B3AE] text-lg">
                   {" "}
                   {/* sage */}
                   Features
                 </a>
-                <a href="#about" className="text-[#97B3AE] text-lg">
+                <a href="/about" className="text-[#97B3AE] text-lg">
                   {" "}
                   {/* sage */}
                   About
                 </a>
-                <a href="#contact" className="text-[#97B3AE] text-lg">
+                <a href="/contact" className="text-[#97B3AE] text-lg">
                   {" "}
                   {/* sage */}
                   Contact
