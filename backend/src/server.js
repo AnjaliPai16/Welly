@@ -49,6 +49,7 @@ const allowedOrigins = [
   'http://localhost:5173',
   'https://welly-lake.vercel.app',
   'https://welly-35tbpapvp-anjalisugandhapai-3182s-projects.vercel.app'
+  
 ];
 
 app.use(cors({

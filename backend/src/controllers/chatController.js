@@ -1,5 +1,5 @@
 // src/controllers/chatController.js
-const Chat = require('../models/Chat');
+const Chat = require('../models/chat');
 const { GoogleGenAI } = require('@google/genai'); // requires npm install @google/genai
 
 // init client (if GEMINI_API_KEY is set it will be used; SDK also supports other auth modes)
