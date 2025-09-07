@@ -19,7 +19,7 @@ export default function LoginPage() {
   })
   
   const navigate = useNavigate()
-  const { login, error, loading } = useAuth()
+  const { login,loginWithGoogle, error, loading } = useAuth()
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target
@@ -43,12 +43,11 @@ export default function LoginPage() {
     }
   }
 
-  const handleGoogleLogin = () => {
-    // Handle Google OAuth login
-    console.log("[v0] Google login clicked")
-    // In a real app, you would integrate with Google OAuth
-    // For now, redirect to home page to simulate successful login
-    navigate('/')
+  const handleGoogleLogin = async () => {
+    const result = await loginWithGoogle()
+    if (result.success) {
+      navigate('/')
+    }
   }
 
   return (

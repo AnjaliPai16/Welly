@@ -70,6 +70,11 @@ export const authAPI = {
     method: 'POST',
     body: JSON.stringify(credentials),
   }),
+  loginWithFirebase: (firebaseData) => apiRequest('/auth/firebase', {
+    method: 'POST',
+    body: JSON.stringify(firebaseData),
+  }),
+  
   
   getMe: () => apiRequest('/auth/me'),
 };
@@ -215,6 +220,22 @@ export const photoAPI = {
     method: 'DELETE',
   }),
 };
+export const chatAPI = {
+  // POST /api/chat  - send message, returns { reply }
+  sendMessage: async (message) => {
+    return apiRequest('/chat', {
+      method: 'POST',
+      body: JSON.stringify({ message })
+    });
+  },
+
+  // GET /api/chat  - load user's chat history
+  getHistory: async () => {
+    return apiRequest('/chat', {
+      method: 'GET'
+    });
+  }
+};
 
 // Playlist API
 export const playlistAPI = {
@@ -258,6 +279,7 @@ export default {
   gratitude: gratitudeAPI,
   albums: albumAPI,
   photos: photoAPI,
+  chat: chatAPI,
   playlists: playlistAPI,
   health: healthCheck,
 };

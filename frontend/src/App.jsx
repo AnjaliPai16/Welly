@@ -12,6 +12,7 @@ import MemoryLanePage from "./pages/MemoryLanePage"
 import LoginPage from "./pages/LoginPage"
 import SignupPage from "./pages/SignupPage"
 import CalmingPlaylistPage from "./pages/CalmingPlaylistPage"
+import ChatWithWelly from "./pages/ChatWithWelly";
 import BreathingMeditationPage from "./pages/BreathingMeditationPage"
 import AboutPage from "./pages/AboutPage"
 import ContactPage from "./pages/ContactPage"
@@ -74,7 +75,7 @@ function HomePage() {
       description: "Soothing sounds to accompany your wellness journey",
       color: "bg-gradient-to-br from-[#F0EEEA] to-[#F2C3B9]", // cream to peach
       slug: "calmingplaylist", // Add a slug for the URL
-    },
+    }
   ]
 
   return (
@@ -203,6 +204,48 @@ function HomePage() {
             </div>
           </div>
         </section>
+
+        {/* Chat with Welly Featured Section */}
+        <section className="py-12 px-6">
+          <div className="max-w-4xl mx-auto">
+            <Card className="border-none shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group cursor-pointer rounded-2xl bg-gradient-to-r from-[#E0D7F5] to-[#F0EEEA]">
+              <CardContent className="p-8 flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0 md:space-x-8 group-hover:scale-[1.02] transition-transform duration-300">
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-white/40 rounded-full flex items-center justify-center backdrop-blur-sm">
+                    <Sparkles className="w-8 h-8 text-[#97B3AE]" />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-semibold text-[#486856] mb-1">Chat with Welly</h3>
+                    <p className="text-[#486856] text-lg">Have a safe and supportive conversation with your AI companion</p>
+                  </div>
+                </div>
+                <div className="flex-shrink-0">
+                  {isAuthenticated ? (
+                    <Link to="/chat">
+                      <Button size="lg" className="bg-[#97B3AE] hover:bg-[#D6CBBF] text-white px-8 py-3 text-lg">
+                        Start Chatting →
+                      </Button>
+                    </Link>
+                  ) : (
+                    <div className="flex space-x-3">
+                      <Link to="/login">
+                        <Button size="lg" variant="outline" className="border-[#97B3AE] text-[#97B3AE] hover:bg-[#97B3AE] hover:text-white px-6 py-3">
+                          Login
+                        </Button>
+                      </Link>
+                      <Link to="/signup">
+                        <Button size="lg" className="bg-[#97B3AE] hover:bg-[#D6CBBF] text-white px-6 py-3">
+                          Sign Up
+                        </Button>
+                      </Link>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
+
         {/* Features Section */}
         <section id="features" className="py-20 px-6">
           <div className="max-w-7xl mx-auto">
@@ -262,6 +305,7 @@ function HomePage() {
                           </Button>
                         </Link>
                       ): (
+                        
                         <Button variant="ghost" className="text-[#486856] hover:bg-white/20 mt-4" disabled>
                           Coming Soon →
                         </Button>
@@ -300,21 +344,13 @@ function HomePage() {
               <p className="text-lg text-[#97B3AE] mb-8 max-w-2xl mx-auto">
                 Join thousands who have found peace and balance through mindful daily practices
               </p>
-              {isAuthenticated ? (
-                <Button 
-                  size="lg" 
-                  className="bg-[#97B3AE] hover:bg-[#D6CBBF] text-white px-12 py-4 text-lg"
-                  onClick={scrollToFeatures}
-                >
-                  Explore Features
-                </Button>
-              ) : (
-                <Link to="/signup">
-                  <Button size="lg" className="bg-[#97B3AE] hover:bg-[#D6CBBF] text-white px-12 py-4 text-lg">
-                    Get Started Today
-                  </Button>
-                </Link>
-              )}
+              <Button 
+                size="lg" 
+                className="bg-[#97B3AE] hover:bg-[#D6CBBF] text-white px-12 py-4 text-lg"
+                onClick={scrollToFeatures}
+              >
+                Get Started Today
+              </Button>
             </div>
           </div>
         </section>
@@ -380,6 +416,11 @@ export default function App() {
           <BreathingMeditationPage />
         </ProtectedRoute>
       } />
+      <Route path="/chat" element={
+  <ProtectedRoute>
+    <ChatWithWelly />
+  </ProtectedRoute>
+} />
       <Route path="/about" element={<AboutPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />

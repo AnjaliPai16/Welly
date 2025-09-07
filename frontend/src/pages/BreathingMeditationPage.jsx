@@ -1,43 +1,19 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "../components/ui/button"
 import { Card, CardContent } from "../components/ui/card"
 import { Input } from "../components/ui/input"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../components/ui/dialog"
-import { Sparkles, Play, BookOpen, ExternalLink, Search } from "lucide-react"
+import { Sparkles, Play, BookOpen, ExternalLink, Search, Loader2 } from "lucide-react"
 import { Link } from "react-router-dom"
 
-const videos = [
-  {
-    id: "5DqTuWve9t8",
-    title: "10-Minute Guided Breathing Meditation",
-    channel: "Great Meditation",
-    duration: "10:12",
-    url: "https://www.youtube.com/watch?v=5DqTuWve9t8",
-  },
-  {
-    id: "inpok4MKVLM",
-    title: "5-Minute Meditation You Can Do Anywhere",
-    channel: "Headspace",
-    duration: "5:11",
-    url: "https://www.youtube.com/watch?v=inpok4MKVLM",
-  },
-  {
-    id: "SEfs5TJZ6Nk",
-    title: "Mindfulness Meditation - Guided 10 Minutes",
-    channel: "The Honest Guys",
-    duration: "10:01",
-    url: "https://www.youtube.com/watch?v=SEfs5TJZ6Nk",
-  },
-  {
-    id: "aNXKjGFUlMs",
-    title: "Box Breathing (4x4) Guided Practice",
-    channel: "CalaMed",
-    duration: "4:45",
-    url: "https://www.youtube.com/watch?v=aNXKjGFUlMs",
-  },
-]
+
+// YouTube API configuration
+const YOUTUBE_API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY;
+const YOUTUBE_API_BASE = 'https://www.googleapis.com/youtube/v3';
+console.log("API Key:", YOUTUBE_API_KEY);
+
 
 const articles = [
   {
@@ -62,12 +38,191 @@ const articles = [
   },
 ]
 
+// Default search terms for meditation/breathing content
+const DEFAULT_SEARCH_TERMS = [
+  'guided meditation breathing',
+  'mindfulness meditation 10 minutes',
+  'breathing exercises anxiety',
+  'meditation for beginners'
+]
+
 export default function BreathingMeditationPage() {
   const [query, setQuery] = useState("")
   const [activeVideo, setActiveVideo] = useState(null)
+  const [videos, setVideos] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
-  const filteredVideos = videos.filter(v => v.title.toLowerCase().includes(query.toLowerCase()))
-  const filteredArticles = articles.filter(a => a.title.toLowerCase().includes(query.toLowerCase()))
+  // Function to search YouTube videos
+  const searchYouTubeVideos = async (searchQuery, maxResults = 20) => {
+    try {
+      const response = await fetch(
+        `${YOUTUBE_API_BASE}/search?` +
+        `key=${YOUTUBE_API_KEY}&` +
+        `q=${encodeURIComponent(searchQuery)}&` +
+        `part=snippet&` +
+        `type=video&` +
+        `maxResults=${maxResults}&` +
+        `order=relevance&` +
+        `videoDuration=medium&` + // Filter for medium length videos (4-20 minutes)
+        `videoDefinition=any&` +
+        `safeSearch=strict`
+      )
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const data = await response.json()
+      return data.items || []
+    } catch (error) {
+      console.error('Error fetching YouTube videos:', error)
+      throw error
+    }
+  }
+
+  // Function to get video details including duration
+  const getVideoDetails = async (videoIds) => {
+    try {
+      const response = await fetch(
+        `${YOUTUBE_API_BASE}/videos?` +
+        `key=${YOUTUBE_API_KEY}&` +
+        `id=${videoIds.join(',')}&` +
+        `part=contentDetails,statistics`
+      )
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const data = await response.json()
+      return data.items || []
+    } catch (error) {
+      console.error('Error fetching video details:', error)
+      return []
+    }
+  }
+
+  // Function to convert ISO 8601 duration to readable format
+  const formatDuration = (duration) => {
+    const match = duration.match(/PT(\d+H)?(\d+M)?(\d+S)?/)
+    if (!match) return '0:00'
+
+    const hours = parseInt(match[1]) || 0
+    const minutes = parseInt(match[2]) || 0
+    const seconds = parseInt(match[3]) || 0
+
+    if (hours > 0) {
+      return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+    }
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`
+  }
+
+  // Function to load initial videos
+  const loadInitialVideos = async () => {
+    setLoading(true)
+    setError(null)
+
+    try {
+      // Search for videos using multiple search terms
+      const allVideos = []
+      
+      for (const searchTerm of DEFAULT_SEARCH_TERMS) {
+        const searchResults = await searchYouTubeVideos(searchTerm, 8)
+        allVideos.push(...searchResults)
+      }
+
+      // Remove duplicates based on video ID
+      const uniqueVideos = allVideos.filter((video, index, self) => 
+        index === self.findIndex(v => v.id.videoId === video.id.videoId)
+      )
+
+      // Get video details for duration
+      const videoIds = uniqueVideos.map(video => video.id.videoId)
+      const videoDetails = await getVideoDetails(videoIds)
+
+      // Combine search results with video details
+      const formattedVideos = uniqueVideos.map(video => {
+        const details = videoDetails.find(detail => detail.id === video.id.videoId)
+        return {
+          id: video.id.videoId,
+          title: video.snippet.title,
+          channel: video.snippet.channelTitle,
+          duration: details ? formatDuration(details.contentDetails.duration) : 'N/A',
+          url: `https://www.youtube.com/watch?v=${video.id.videoId}`,
+          thumbnail: video.snippet.thumbnails.medium?.url || video.snippet.thumbnails.default?.url,
+          description: video.snippet.description,
+          publishedAt: video.snippet.publishedAt
+        }
+      })
+
+      // Sort by relevance (you can customize this sorting logic)
+      formattedVideos.sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt))
+
+      setVideos(formattedVideos.slice(0, 12)) // Limit to 12 videos
+    } catch (error) {
+      setError('Failed to load videos. Please try again later.')
+      console.error('Error loading videos:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Function to search videos based on user input
+  const handleSearch = async (searchQuery) => {
+    if (!searchQuery.trim()) {
+      loadInitialVideos()
+      return
+    }
+
+    setLoading(true)
+    setError(null)
+
+    try {
+      const searchResults = await searchYouTubeVideos(`${searchQuery} meditation breathing`, 12)
+      const videoIds = searchResults.map(video => video.id.videoId)
+      const videoDetails = await getVideoDetails(videoIds)
+
+      const formattedVideos = searchResults.map(video => {
+        const details = videoDetails.find(detail => detail.id === video.id.videoId)
+        return {
+          id: video.id.videoId,
+          title: video.snippet.title,
+          channel: video.snippet.channelTitle,
+          duration: details ? formatDuration(details.contentDetails.duration) : 'N/A',
+          url: `https://www.youtube.com/watch?v=${video.id.videoId}`,
+          thumbnail: video.snippet.thumbnails.medium?.url || video.snippet.thumbnails.default?.url,
+          description: video.snippet.description,
+          publishedAt: video.snippet.publishedAt
+        }
+      })
+
+      setVideos(formattedVideos)
+    } catch (error) {
+      setError('Failed to search videos. Please try again.')
+      console.error('Error searching videos:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Load initial videos on component mount
+  useEffect(() => {
+    loadInitialVideos()
+  }, [])
+
+  // Handle search with debouncing
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      handleSearch(query)
+    }, 500) // 500ms delay
+
+    return () => clearTimeout(timer)
+  }, [query])
+
+  const filteredArticles = articles.filter(a => 
+    a.title.toLowerCase().includes(query.toLowerCase())
+  )
 
   return (
     <div className="min-h-screen relative bg-cover bg-center bg-fixed" style={{ backgroundImage: 'url("bg5.jpg")' }}>
@@ -112,7 +267,7 @@ export default function BreathingMeditationPage() {
                 <div className="flex-1 relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "#82b2c0" }} />
                   <Input
-                    placeholder="Search videos and articles..."
+                    placeholder="Search meditation and breathing videos..."
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     className="pl-10 border-[#82b2c0]/30 focus:border-[#82b2c0]"
@@ -121,38 +276,70 @@ export default function BreathingMeditationPage() {
               </div>
             </div>
 
+            {/* Error Message */}
+            {error && (
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6">
+                {error}
+              </div>
+            )}
+
             {/* Videos Section */}
             <div className="mb-10">
               <h2 className="text-2xl font-semibold mb-4 flex items-center" style={{ color: "#2f6e82" }}>
                 <Play className="w-6 h-6 mr-2" /> Guided Videos
+                {loading && <Loader2 className="w-5 h-5 ml-2 animate-spin" />}
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredVideos.map((v) => (
-                  <Card key={v.id} className="bg-white/85 backdrop-blur-sm border-[#82b2c0]/30 hover:shadow-lg transition-all">
-                    <CardContent className="p-4">
-                      <div className="aspect-video w-full rounded-lg overflow-hidden mb-3 bg-black/10">
-                        <img
-                          src={`https://img.youtube.com/vi/${v.id}/hqdefault.jpg`}
-                          alt={v.title}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <h3 className="font-semibold" style={{ color: "#2f6e82" }}>{v.title}</h3>
-                      <p className="text-sm" style={{ color: "#3c879f" }}>{v.channel} • {v.duration}</p>
-                      <div className="mt-3 flex gap-2">
-                        <Button onClick={() => setActiveVideo(v)} className="text-white" style={{ backgroundColor: "#82b2c0" }}>
-                          <Play className="w-4 h-4 mr-2" /> Watch
-                        </Button>
-                        <a href={v.url} target="_blank" rel="noreferrer">
-                          <Button variant="outline" className="border-[#82b2c0]" style={{ color: "#2f6e82" }}>
-                            <ExternalLink className="w-4 h-4 mr-2" /> Open
+              
+              {loading && videos.length === 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {[...Array(6)].map((_, idx) => (
+                    <Card key={idx} className="bg-white/85 backdrop-blur-sm border-[#82b2c0]/30">
+                      <CardContent className="p-4">
+                        <div className="aspect-video w-full rounded-lg bg-gray-200 animate-pulse mb-3" />
+                        <div className="h-4 bg-gray-200 animate-pulse rounded mb-2" />
+                        <div className="h-3 bg-gray-200 animate-pulse rounded w-2/3" />
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {videos.map((v) => (
+                    <Card key={v.id} className="bg-white/85 backdrop-blur-sm border-[#82b2c0]/30 hover:shadow-lg transition-all">
+                      <CardContent className="p-4">
+                        <div className="aspect-video w-full rounded-lg overflow-hidden mb-3 bg-black/10">
+                          <img
+                            src={v.thumbnail}
+                            alt={v.title}
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                          />
+                        </div>
+                        <h3 className="font-semibold line-clamp-2" style={{ color: "#2f6e82" }} title={v.title}>
+                          {v.title}
+                        </h3>
+                        <p className="text-sm" style={{ color: "#3c879f" }}>
+                          {v.channel} • {v.duration}
+                        </p>
+                        <div className="mt-3 flex gap-2">
+                          <Button 
+                            onClick={() => setActiveVideo(v)} 
+                            className="text-white" 
+                            style={{ backgroundColor: "#82b2c0" }}
+                          >
+                            <Play className="w-4 h-4 mr-2" /> Watch
                           </Button>
-                        </a>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+                          <a href={v.url} target="_blank" rel="noreferrer">
+                            <Button variant="outline" className="border-[#82b2c0]" style={{ color: "#2f6e82" }}>
+                              <ExternalLink className="w-4 h-4 mr-2" /> Open
+                            </Button>
+                          </a>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Articles Section */}
@@ -189,7 +376,7 @@ export default function BreathingMeditationPage() {
               {activeVideo && (
                 <iframe
                   className="w-full h-full rounded-lg"
-                  src={`https://www.youtube.com/embed/${activeVideo.id}`}
+                  src={`https://www.youtube.com/embed/${activeVideo.id}?autoplay=1`}
                   title={activeVideo.title}
                   frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -203,6 +390,3 @@ export default function BreathingMeditationPage() {
     </div>
   )
 }
-
-
-

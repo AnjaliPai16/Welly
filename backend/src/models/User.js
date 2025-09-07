@@ -21,7 +21,14 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
+      required: function() {
+        // Password is required only if no OAuth provider is used
+        return !this.photoURL;
+      },
+    },
+    photoURL: {
+      type: String,
+      default: '',
     },
   },
   { timestamps: true }

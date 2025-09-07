@@ -1,6 +1,6 @@
-// Jamendo API service for music integration
+
 const JAMENDO_API_BASE = "https://api.jamendo.com/v3.0"
-const CLIENT_ID = "fdba5158" // You'll need to get this from Jamendo
+const CLIENT_ID = "fdba5158" 
 
 class JamendoAPI {
   constructor() {

@@ -22,7 +22,7 @@ export default function SignupPage() {
   })
 
   const navigate = useNavigate()
-  const { register, error, loading } = useAuth()
+  const { register,loginWithGoogle, error, loading } = useAuth()
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target
@@ -54,11 +54,11 @@ export default function SignupPage() {
     }
   }
 
-  const handleGoogleSignup = () => {
-    console.log("[v0] Google signup clicked")
-    // In a real app, you would integrate with Google OAuth
-    // For now, redirect to home page to simulate successful signup
-    window.location.href = "/"
+  const handleGoogleSignup = async () => {
+    const result = await loginWithGoogle()
+    if (result.success) {
+      navigate('/')
+    }
   }
 
   return (

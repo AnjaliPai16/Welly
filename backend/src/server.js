@@ -7,14 +7,38 @@ const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/db');
 const { isCloudinaryConfigured } = require('./config/cloudinary');
+const admin = require('firebase-admin'); // ✅ Firebase Admin SDK
 
+// Debug logs
 console.log('Cloudinary env check:', {
   CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME ? 'SET' : 'NOT SET',
   CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY ? 'SET' : 'NOT SET',
   CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET ? 'SET' : 'NOT SET'
 });
-// Debug log to confirm JWT_SECRET is loaded
 console.log('JWT_SECRET from env:', process.env.JWT_SECRET);
+
+// ✅ Firebase Initialization
+try {
+  admin.initializeApp({
+    credential: admin.credential.cert({
+      type: process.env.FIREBASE_TYPE,
+      project_id: process.env.FIREBASE_PROJECT_ID,
+      private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
+      private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+      client_email: process.env.FIREBASE_CLIENT_EMAIL,
+      client_id: process.env.FIREBASE_CLIENT_ID,
+      auth_uri: process.env.FIREBASE_AUTH_URI,
+      token_uri: process.env.FIREBASE_TOKEN_URI,
+      auth_provider_x509_cert_url: process.env.FIREBASE_AUTH_PROVIDER_X509_CERT_URL,
+      client_x509_cert_url: process.env.FIREBASE_CLIENT_X509_CERT_URL,
+      universe_domain: process.env.FIREBASE_UNIVERSE_DOMAIN,
+    }),
+  });
+
+  console.log('✅ Firebase Admin Initialized');
+} catch (err) {
+  console.error('❌ Firebase initialization error:', err);
+}
 
 // Connect to MongoDB
 connectDB();
@@ -39,6 +63,7 @@ const photoRoutes = require('./routes/photoRoutes');
 const habitRoutes = require('./routes/habitRoutes');
 const gratitudeRoutes = require('./routes/gratitudeRoutes');
 const playlistRoutes = require('./routes/playlistRoutes');
+const chatRoutes = require('./routes/chatRoutes');
 
 // Mount routes
 app.use('/api/auth', authRoutes);
@@ -48,6 +73,7 @@ app.use('/api/photos', photoRoutes);
 app.use('/api/habits', habitRoutes);
 app.use('/api/gratitude', gratitudeRoutes);
 app.use('/api/playlists', playlistRoutes);
+app.use('/api/chat', chatRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -66,4 +92,4 @@ app.use((err, req, res, next) => {
 
 // Start server
 const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
