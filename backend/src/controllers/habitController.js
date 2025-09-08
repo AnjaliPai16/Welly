@@ -1,13 +1,13 @@
 const Habit = require('../models/Habit');
 const HabitLog = require('../models/HabitLog');
 
-// Create new habit
+
 const createHabit = async (req, res) => {
   try {
     const { name, description, frequency, icon, color, goalCount, goalUnit } = req.body;
     const userId = req.user.id;
 
-    // Validate required fields
+   
     if (!name) {
       return res.status(400).json({
         success: false,
@@ -45,7 +45,7 @@ const createHabit = async (req, res) => {
   }
 };
 
-// Get all habits for user
+
 const getUserHabits = async (req, res) => {
   try {
     const userId = req.user.id;

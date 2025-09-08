@@ -1,14 +1,14 @@
-// src/controllers/journalController.js
+
 const JournalEntry = require('../models/JournalEntry');
 
-// Create new journal entry
+
 exports.createJournal = async (req, res) => {
   try {
     const { title, content, mood, tags, isFavorite } = req.body;
     console.log('CREATE JOURNAL REQUEST:', { title, content, mood, tags, isFavorite, userId: req.user.id });
     
     const entry = await JournalEntry.create({
-      user: req.user.id, // comes from auth middleware
+      user: req.user.id, 
       title,
       content,
       mood,
@@ -24,7 +24,7 @@ exports.createJournal = async (req, res) => {
   }
 };
 
-// Get all journals for logged-in user
+
 exports.getJournals = async (req, res) => {
   try {
     const entries = await JournalEntry.find({ user: req.user.id }).sort({ createdAt: -1 });
@@ -34,7 +34,7 @@ exports.getJournals = async (req, res) => {
   }
 };
 
-// Get single journal by id
+
 exports.getJournal = async (req, res) => {
   try {
     const entry = await JournalEntry.findOne({ _id: req.params.id, user: req.user.id });
@@ -45,7 +45,7 @@ exports.getJournal = async (req, res) => {
   }
 };
 
-// Update journal
+
 exports.updateJournal = async (req, res) => {
   try {
     const { title, content, mood, tags, isFavorite } = req.body;
@@ -61,7 +61,7 @@ exports.updateJournal = async (req, res) => {
   }
 };
 
-// Delete journal
+
 exports.deleteJournal = async (req, res) => {
   try {
     const entry = await JournalEntry.findOneAndDelete({ _id: req.params.id, user: req.user.id });

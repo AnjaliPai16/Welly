@@ -24,7 +24,6 @@ AlbumSchema.virtual('photos', {
   foreignField: 'album'
 });
 
-// Update photo count when photos are added/removed
 AlbumSchema.methods.updatePhotoCount = async function() {
   const Photo = mongoose.model('Photo');
   const count = await Photo.countDocuments({ album: this._id });
@@ -41,7 +40,6 @@ AlbumSchema.pre('deleteOne', { document: true, query: false }, async function (n
   }
 });
 
-// Indexes for better query performance
 AlbumSchema.index({ user: 1, genre: 1 });
 AlbumSchema.index({ user: 1, createdAt: -1 });
 

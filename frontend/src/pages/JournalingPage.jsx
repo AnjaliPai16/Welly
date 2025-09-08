@@ -22,7 +22,7 @@ const JournalingPage = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
 
-  // Load journal entries from backend
+
   useEffect(() => {
     loadEntries()
   }, [])
@@ -85,7 +85,6 @@ const JournalingPage = () => {
 
       console.log('API response:', response)
 
-      // Backend returns the created/updated entry directly, not wrapped in success property
       if (response && response._id) {
         console.log('Entry saved successfully!')
         setShowEntryForm(false)
@@ -140,9 +139,9 @@ const JournalingPage = () => {
 
     try {
       const response = await journalAPI.deleteEntry(entryId)
-      // Backend returns success message directly
+      
       if (response && response.message) {
-        loadEntries() // Reload entries from backend
+        loadEntries() 
         if (selectedEntry && selectedEntry._id === entryId) {
           handleCloseEntryViewer()
         }
@@ -158,9 +157,9 @@ const JournalingPage = () => {
       const response = await journalAPI.updateEntry(entry._id, {
         isFavorite: !entry.isFavorite
       })
-      // Backend returns updated entry directly
+   
       if (response && response._id) {
-        loadEntries() // Reload entries from backend
+        loadEntries() 
       }
     } catch (error) {
       setError(error.message || 'Failed to update journal entry')

@@ -10,7 +10,7 @@ const HabitLogSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Prevent duplicate logs for the same habit+date
+
 HabitLogSchema.index({ habit: 1, date: 1 }, { unique: true });
 
 module.exports = mongoose.model('HabitLog', HabitLogSchema);

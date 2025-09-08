@@ -52,7 +52,7 @@ const apiRequest = async (endpoint, options = {}) => {
     
     // Provide more specific error messages
     if (error.name === 'TypeError' && error.message.includes('fetch')) {
-      throw new Error('Unable to connect to server. Please make sure the backend is running on http://localhost:8080');
+      throw new Error('Unable to connect to server.' );
     }
     
     throw error;

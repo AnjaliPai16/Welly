@@ -3,7 +3,7 @@ import { Card, CardContent } from "./components/ui/card"
 import { BookOpen, Heart, CheckSquare, Wind, Camera, Music, Menu, Sparkles } from "lucide-react"
 import { Sheet, SheetContent, SheetTrigger } from "./components/ui/sheet"
 import { Link, Routes, Route } from "react-router-dom"
-import FeatureDetailPage from "./pages/FeatureDetailPage"
+
 import "./App.css"
 import JournalingPage from "./pages/JournalingPage"
 import HabitTrackerPage from "./pages/HabitTrackerPage"
@@ -385,7 +385,7 @@ export default function App() {
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
-      <Route path="/features/:featureName" element={<FeatureDetailPage />} />
+ 
       <Route path="/journaling" element={
         <ProtectedRoute>
           <JournalingPage />
