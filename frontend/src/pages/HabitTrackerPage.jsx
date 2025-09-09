@@ -29,7 +29,7 @@ const HabitTrackerPage = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   
-  // Form states
+
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [editingHabit, setEditingHabit] = useState(null)
   const [formData, setFormData] = useState({
@@ -42,18 +42,18 @@ const HabitTrackerPage = () => {
     goalUnit: "time"
   })
 
-  // Stats states
+
   const [stats, setStats] = useState({
     totalHabits: 0,
     activeHabits: 0,
     averageCompletion: 0
   })
   
-  // UI states
+
   const [showCalendar, setShowCalendar] = useState(false)
   const [showStats, setShowStats] = useState(false)
 
-  // Load habits and stats on component mount
+
   useEffect(() => {
     loadHabits()
     loadStats()

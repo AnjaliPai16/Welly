@@ -17,7 +17,7 @@ if (process.env.FIREBASE_PRIVATE_KEY && process.env.FIREBASE_CLIENT_EMAIL) {
     serviceAccount = require('../../serviceAccountKey.json');
   } catch (error) {
     console.warn('No Firebase service account credentials found. Please set up Firebase Admin SDK credentials.');
-    console.warn('See FIREBASE_OAUTH_SETUP.md for instructions.');
+   
   }
 }
 

@@ -19,7 +19,7 @@ export default function MemoryLanePage() {
   const [showPhotoView, setShowPhotoView] = useState(false)
   const [selectedPhotos, setSelectedPhotos] = useState([])
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0)
-  const [viewMode, setViewMode] = useState("albums") // "albums" or "cluster"
+  const [viewMode, setViewMode] = useState("albums") 
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
 
@@ -28,15 +28,15 @@ export default function MemoryLanePage() {
     loadAlbums()
   }, [])
 
-  // Ensure full width coverage
+  
   useEffect(() => {
-    // Force full width
+
     document.body.style.width = '100vw'
     document.body.style.overflowX = 'hidden'
     document.body.style.margin = '0'
     document.body.style.padding = '0'
     
-    // Also set html element
+   
     document.documentElement.style.width = '100vw'
     document.documentElement.style.overflowX = 'hidden'
     
@@ -67,7 +67,6 @@ export default function MemoryLanePage() {
     }
   }
 
-  // Add function to handle album creation
   const handleCreateAlbum = async (newAlbum) => {
     try {
       setError("")
@@ -80,7 +79,7 @@ export default function MemoryLanePage() {
       })
 
       if (response.success) {
-        await loadAlbums() // Reload albums to get the new one
+        await loadAlbums() 
         setShowCreateAlbum(false)
       } else {
         setError(response.message || 'Failed to create album')
@@ -90,12 +89,10 @@ export default function MemoryLanePage() {
     }
   }
 
-  // Add function to handle adding photos to album
   const handleAddPhotos = async (albumId, photos) => {
     try {
       setError("")
-      
-      // Create FormData for each photo
+     
       const uploadPromises = photos.map(async (photo) => {
         try {
           const formData = new FormData()
@@ -114,7 +111,7 @@ export default function MemoryLanePage() {
       const successCount = fulfilled.filter(r => r && r.success).length
 
       if (successCount > 0) {
-        // Reload albums to get updated photo counts
+        
         await loadAlbums()
         setShowPhotoUpload(false)
         setSelectedAlbum(null)
@@ -129,16 +126,14 @@ export default function MemoryLanePage() {
     }
   }
 
-  // Add function to handle album click
   const handleAlbumClick = (album) => {
     setSelectedAlbum(album)
     setShowPhotoUpload(true)
   }
 
-  // Add state to show album collage view
+  
   const [showAlbumGrid, setShowAlbumGrid] = useState(false)
 
-  // Add function to handle photo click
   const handlePhotoClick = async (albumId) => {
     try {
       setError("")
@@ -151,7 +146,7 @@ export default function MemoryLanePage() {
         }))
         setSelectedPhotos(normalized)
         setSelectedPhotoIndex(0)
-        setShowAlbumGrid(true) // Open collage grid
+        setShowAlbumGrid(true)
       } else {
         setError(response.message || 'Failed to load photos')
       }
@@ -160,7 +155,7 @@ export default function MemoryLanePage() {
     }
   }
 
-  // Add function to update photo note
+ 
   const handleUpdatePhotoNote = async (photoId, newNote) => {
     try {
       setError("")
@@ -180,7 +175,7 @@ export default function MemoryLanePage() {
     }
   }
 
-  // Get all photos from all albums for cluster view
+ 
   const getAllPhotos = async () => {
     try {
       setError("")
@@ -218,7 +213,7 @@ export default function MemoryLanePage() {
     })
   }
 
-  // Handle cluster view photo loading
+
   const [clusterPhotos, setClusterPhotos] = useState([])
   const [clusterLoading, setClusterLoading] = useState(false)
 

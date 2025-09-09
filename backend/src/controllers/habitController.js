@@ -26,7 +26,6 @@ const createHabit = async (req, res) => {
       goalUnit: goalUnit || 'time',
       completedDates: []
     });
-
     await habit.save();
 
     res.status(201).json({
@@ -52,13 +51,12 @@ const getUserHabits = async (req, res) => {
     const { frequency, isActive } = req.query;
 
     let query = { user: userId };
-    
-    // Filter by frequency if specified
+  
     if (frequency) {
       query.frequency = frequency;
     }
     
-    // Filter by active status if specified
+  
     if (isActive !== undefined) {
       query.isActive = isActive === 'true';
     }
@@ -81,7 +79,6 @@ const getUserHabits = async (req, res) => {
   }
 };
 
-// Get habit by ID
 const getHabitById = async (req, res) => {
   try {
     const { habitId } = req.params;
@@ -111,7 +108,7 @@ const getHabitById = async (req, res) => {
   }
 };
 
-// Update habit
+
 const updateHabit = async (req, res) => {
   try {
     const { habitId } = req.params;
@@ -126,7 +123,7 @@ const updateHabit = async (req, res) => {
       });
     }
 
-    // Update fields
+
     if (name !== undefined) habit.name = name;
     if (description !== undefined) habit.description = description;
     if (frequency !== undefined) habit.frequency = frequency;
@@ -154,7 +151,7 @@ const updateHabit = async (req, res) => {
   }
 };
 
-// Delete habit
+
 const deleteHabit = async (req, res) => {
   try {
     const { habitId } = req.params;
@@ -168,7 +165,7 @@ const deleteHabit = async (req, res) => {
       });
     }
 
-    // Habit deletion will cascade to logs due to pre-delete hook
+  
     await Habit.findByIdAndDelete(habitId);
 
     res.json({
@@ -186,7 +183,7 @@ const deleteHabit = async (req, res) => {
   }
 };
 
-// Toggle habit completion for a specific date
+
 const toggleHabitCompletion = async (req, res) => {
   try {
     const { habitId } = req.params;
@@ -206,16 +203,16 @@ const toggleHabitCompletion = async (req, res) => {
     const isCompleted = completedDates.includes(targetDate);
 
     if (isCompleted) {
-      // Remove date from completed dates
+  
       habit.completedDates = completedDates.filter(d => d !== targetDate);
     } else {
-      // Add date to completed dates
+
       habit.completedDates = [...completedDates, targetDate];
     }
 
     await habit.save();
 
-    // Create or update habit log
+   
     const logData = {
       habit: habitId,
       user: userId,
@@ -249,7 +246,7 @@ const toggleHabitCompletion = async (req, res) => {
   }
 };
 
-// Get habit statistics
+
 const getHabitStats = async (req, res) => {
   try {
     const userId = req.user.id;

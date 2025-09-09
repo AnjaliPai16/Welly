@@ -10,10 +10,10 @@ const AlbumSchema = new mongoose.Schema(
       enum: ['personal', 'group', 'special', 'family'], 
       default: 'personal' 
     },
-    color: { type: String, required: true, default: 'bg-gradient-to-br from-[#D4B896] to-[#E8D5B7]' },
+    // color: { type: String, required: true, default: 'bg-gradient-to-br from-[#D4B896] to-[#E8D5B7]' },
     icon: { type: String, required: true, default: 'Camera', enum: ['Camera', 'Users', 'Calendar', 'Heart'] },
-    photoCount: { type: Number, default: 0 },
-    isPublic: { type: Boolean, default: false }
+    photoCount: { type: Number, default: 0 }
+    // isPublic: { type: Boolean, default: false }
   },
   { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );

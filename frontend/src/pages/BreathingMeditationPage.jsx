@@ -12,7 +12,7 @@ import { Link } from "react-router-dom"
 // YouTube API configuration
 const YOUTUBE_API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY;
 const YOUTUBE_API_BASE = 'https://www.googleapis.com/youtube/v3';
-console.log("API Key:", YOUTUBE_API_KEY);
+
 
 
 const articles = [
@@ -53,7 +53,6 @@ export default function BreathingMeditationPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  // Function to search YouTube videos
   const searchYouTubeVideos = async (searchQuery, maxResults = 20) => {
     try {
       const response = await fetch(
@@ -64,7 +63,7 @@ export default function BreathingMeditationPage() {
         `type=video&` +
         `maxResults=${maxResults}&` +
         `order=relevance&` +
-        `videoDuration=medium&` + // Filter for medium length videos (4-20 minutes)
+        `videoDuration=medium&` + 
         `videoDefinition=any&` +
         `safeSearch=strict`
       )
@@ -81,7 +80,7 @@ export default function BreathingMeditationPage() {
     }
   }
 
-  // Function to get video details including duration
+  
   const getVideoDetails = async (videoIds) => {
     try {
       const response = await fetch(
@@ -103,7 +102,6 @@ export default function BreathingMeditationPage() {
     }
   }
 
-  // Function to convert ISO 8601 duration to readable format
   const formatDuration = (duration) => {
     const match = duration.match(/PT(\d+H)?(\d+M)?(\d+S)?/)
     if (!match) return '0:00'
@@ -118,13 +116,13 @@ export default function BreathingMeditationPage() {
     return `${minutes}:${seconds.toString().padStart(2, '0')}`
   }
 
-  // Function to load initial videos
+ 
   const loadInitialVideos = async () => {
     setLoading(true)
     setError(null)
 
     try {
-      // Search for videos using multiple search terms
+    
       const allVideos = []
       
       for (const searchTerm of DEFAULT_SEARCH_TERMS) {
@@ -132,16 +130,15 @@ export default function BreathingMeditationPage() {
         allVideos.push(...searchResults)
       }
 
-      // Remove duplicates based on video ID
+     
       const uniqueVideos = allVideos.filter((video, index, self) => 
         index === self.findIndex(v => v.id.videoId === video.id.videoId)
       )
 
-      // Get video details for duration
+   
       const videoIds = uniqueVideos.map(video => video.id.videoId)
       const videoDetails = await getVideoDetails(videoIds)
 
-      // Combine search results with video details
       const formattedVideos = uniqueVideos.map(video => {
         const details = videoDetails.find(detail => detail.id === video.id.videoId)
         return {
@@ -156,7 +153,7 @@ export default function BreathingMeditationPage() {
         }
       })
 
-      // Sort by relevance (you can customize this sorting logic)
+        
       formattedVideos.sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt))
 
       setVideos(formattedVideos.slice(0, 12)) // Limit to 12 videos
@@ -168,7 +165,6 @@ export default function BreathingMeditationPage() {
     }
   }
 
-  // Function to search videos based on user input
   const handleSearch = async (searchQuery) => {
     if (!searchQuery.trim()) {
       loadInitialVideos()
@@ -179,7 +175,7 @@ export default function BreathingMeditationPage() {
     setError(null)
 
     try {
-      const searchResults = await searchYouTubeVideos(`${searchQuery} meditation breathing`, 12)
+      const searchResults = await searchYouTubeVideos(`${searchQuery}`, 12)
       const videoIds = searchResults.map(video => video.id.videoId)
       const videoDetails = await getVideoDetails(videoIds)
 
@@ -206,16 +202,15 @@ export default function BreathingMeditationPage() {
     }
   }
 
-  // Load initial videos on component mount
   useEffect(() => {
     loadInitialVideos()
   }, [])
 
-  // Handle search with debouncing
+
   useEffect(() => {
     const timer = setTimeout(() => {
       handleSearch(query)
-    }, 500) // 500ms delay
+    }, 500) 
 
     return () => clearTimeout(timer)
   }, [query])

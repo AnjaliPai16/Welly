@@ -2,12 +2,12 @@ const API_BASE_URL = (typeof import.meta !== 'undefined' && import.meta.env && i
   ? `${import.meta.env.VITE_API_URL.replace(/\/$/, '')}/api`
   : 'http://localhost:8080/api';
 
-// Helper function to get auth token
+
 const getAuthToken = () => {
   return localStorage.getItem('token');
 };
 
-// Helper function to make API requests
+
 const apiRequest = async (endpoint, options = {}) => {
   const token = getAuthToken();
   
@@ -20,7 +20,7 @@ const apiRequest = async (endpoint, options = {}) => {
     },
   };
 
-  // If sending FormData, let the browser set Content-Type
+
   if (config.body instanceof FormData) {
     if (config.headers && config.headers['Content-Type']) {
       delete config.headers['Content-Type'];
@@ -50,7 +50,7 @@ const apiRequest = async (endpoint, options = {}) => {
       stack: error.stack
     });
     
-    // Provide more specific error messages
+    
     if (error.name === 'TypeError' && error.message.includes('fetch')) {
       throw new Error('Unable to connect to server.' );
     }
@@ -59,7 +59,7 @@ const apiRequest = async (endpoint, options = {}) => {
   }
 };
 
-// Authentication API
+
 export const authAPI = {
   register: (userData) => apiRequest('/auth/register', {
     method: 'POST',
@@ -79,7 +79,7 @@ export const authAPI = {
   getMe: () => apiRequest('/auth/me'),
 };
 
-// Journal API
+
 export const journalAPI = {
   getEntries: () => apiRequest('/journal'),
   
@@ -189,12 +189,12 @@ export const albumAPI = {
   getAlbumStats: () => apiRequest('/albums/stats'),
 };
 
-// Photo API
+
 export const photoAPI = {
   uploadPhoto: (albumId, formData) => {
     return apiRequest(`/photos/album/${albumId}/single`, {
       method: 'POST',
-      headers: {}, // Let browser set Content-Type for FormData
+      headers: {}, 
       body: formData,
     });
   },
@@ -202,7 +202,7 @@ export const photoAPI = {
   uploadMultiplePhotos: (albumId, formData) => {
     return apiRequest(`/photos/album/${albumId}/multiple`, {
       method: 'POST',
-      headers: {}, // Let browser set Content-Type for FormData
+      headers: {}, 
       body: formData,
     });
   },
@@ -221,7 +221,7 @@ export const photoAPI = {
   }),
 };
 export const chatAPI = {
-  // POST /api/chat  - send message, returns { reply }
+
   sendMessage: async (message) => {
     return apiRequest('/chat', {
       method: 'POST',
@@ -229,7 +229,7 @@ export const chatAPI = {
     });
   },
 
-  // GET /api/chat  - load user's chat history
+
   getHistory: async () => {
     return apiRequest('/chat', {
       method: 'GET'
@@ -237,7 +237,7 @@ export const chatAPI = {
   }
 };
 
-// Playlist API
+
 export const playlistAPI = {
   getUserPlaylists: () => apiRequest('/playlists'),
   
@@ -269,7 +269,7 @@ export const playlistAPI = {
   getPlaylistStats: () => apiRequest('/playlists/stats'),
 };
 
-// Health check
+
 export const healthCheck = () => apiRequest('/health');
 
 export default {

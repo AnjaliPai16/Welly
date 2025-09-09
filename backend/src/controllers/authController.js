@@ -3,13 +3,11 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const admin = require('../config/firebase');
 
-// @desc    Register new user
-// @route   POST /api/auth/register
-// @access  Public
+
 const register = async (req, res) => {
   const { firstName, lastName, email, password } = req.body;
   
-  console.log('REGISTER REQUEST:', { firstName, lastName, email, password: password ? '[HIDDEN]' : 'MISSING' });
+ 
 
   try {
     let user = await User.findOne({ email });
@@ -42,12 +40,10 @@ const register = async (req, res) => {
   }
 };
 
-// @desc    Login user
-// @route   POST /api/auth/login
-// @access  Public
+
 const login = async (req, res) => {
   const { email, password } = req.body;
-  console.log('LOGIN ATTEMPT:', { email, password });
+
 
   try {
     const user = await User.findOne({ email });
@@ -80,31 +76,28 @@ const login = async (req, res) => {
   }
 };
 
-// @desc    Login with Firebase OAuth
-// @route   POST /api/auth/firebase
-// @access  Public
+
 const loginWithFirebase = async (req, res) => {
   const { idToken, email, name, photoURL } = req.body;
   
-  console.log('FIREBASE LOGIN REQUEST:', { email, name, photoURL });
+
 
   try {
-    // Check if Firebase Admin SDK is initialized
+ 
     if (!admin.apps.length) {
       return res.status(500).json({ 
         message: 'Firebase Admin SDK not initialized. Please check server configuration.' 
       });
     }
 
-    // Verify the Firebase ID token
     const decodedToken = await admin.auth().verifyIdToken(idToken);
     console.log('FIREBASE TOKEN VERIFIED:', decodedToken);
 
-    // Check if user exists in our database
+  
     let user = await User.findOne({ email: decodedToken.email });
     
     if (!user) {
-      // Create new user if they don't exist
+    
       const [firstName, ...lastNameParts] = (name || email.split('@')[0]).split(' ');
       const lastName = lastNameParts.join(' ') || '';
       
@@ -113,21 +106,21 @@ const loginWithFirebase = async (req, res) => {
         lastName,
         email: decodedToken.email,
         photoURL: photoURL || '',
-        // No password for OAuth users
+     
         password: null
       });
       
       await user.save();
-      console.log('NEW FIREBASE USER CREATED:', user);
+
     } else {
-      // Update existing user with latest info
+      
       if (photoURL && photoURL !== user.photoURL) {
         user.photoURL = photoURL;
         await user.save();
       }
     }
 
-    // Generate JWT token
+ 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
     res.json({
@@ -145,9 +138,6 @@ const loginWithFirebase = async (req, res) => {
   }
 };
 
-// @desc    Get current logged-in user
-// @route   GET /api/auth/me
-// @access  Private
 const getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select('-password');
